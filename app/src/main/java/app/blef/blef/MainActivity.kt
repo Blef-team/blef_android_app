@@ -18,8 +18,6 @@ import org.json.JSONObject
 import java.io.IOException
 import kotlin.concurrent.fixedRateTimer
 
-const val game_uuid = "com.maciejpomykala.blef.MESSAGE"
-
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -135,7 +133,7 @@ class MainActivity : AppCompatActivity() {
                     gameText.setOnClickListener {
                         val uuid = JSONObject(filteredPublicGames.get(i).toString()).getString("uuid")
                         val intent = Intent(this@MainActivity, JoiningWithUuid::class.java).apply {
-                            putExtra(game_uuid, uuid)
+                            putExtra("game_uuid", uuid)
                         }
                         startActivity(intent)
                     }

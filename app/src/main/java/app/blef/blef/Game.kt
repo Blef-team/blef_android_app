@@ -115,7 +115,7 @@ class Game : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_game)
 
-        val pixelDensity = getResources().getDisplayMetrics().density
+        val pixelDensity = resources.displayMetrics.density
 
         val gameUuid = intent.getStringExtra("game_uuid").toString().lowercase()
         val playerUuid = intent.getStringExtra("player_uuid")
@@ -241,7 +241,7 @@ class Game : AppCompatActivity() {
         }
 
         fun makePublic() {
-            val queryUrl = baseUrl + "/$gameUuid/make-public?admin_uuid=$playerUuid"
+            val queryUrl = "$baseUrl/$gameUuid/make-public?admin_uuid=$playerUuid"
             val request = Request.Builder()
                 .url(queryUrl)
                 .build()
@@ -256,7 +256,7 @@ class Game : AppCompatActivity() {
         }
 
         fun makePrivate() {
-            val queryUrl = baseUrl + "/$gameUuid/make-private?admin_uuid=$playerUuid"
+            val queryUrl = "$baseUrl/$gameUuid/make-private?admin_uuid=$playerUuid"
             val request = Request.Builder()
                 .url(queryUrl)
                 .build()
@@ -271,7 +271,7 @@ class Game : AppCompatActivity() {
         }
 
         fun start() {
-            val queryUrl = baseUrl + "/$gameUuid/start?admin_uuid=$playerUuid"
+            val queryUrl = "$baseUrl/$gameUuid/start?admin_uuid=$playerUuid"
             val request = Request.Builder()
                 .url(queryUrl)
                 .build()
@@ -304,26 +304,26 @@ class Game : AppCompatActivity() {
 
         val gi = findViewById<LinearLayout>(R.id.gameInfo)
         val generalInfo = WebView(this@Game)
-        generalInfo.setLayoutParams(LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT))
+        generalInfo.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
         generalInfo.tag = "generalInfo"
-        generalInfo.setVerticalScrollBarEnabled(false)
+        generalInfo.isVerticalScrollBarEnabled = false
         val playersIntro = TextView(this@Game)
         playersIntro.tag = "playersIntro"
         val playersInfo = WebView(this@Game)
-        playersInfo.setLayoutParams(LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT))
-        playersInfo.setVerticalScrollBarEnabled(false)
+        playersInfo.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+        playersInfo.isVerticalScrollBarEnabled = false
         playersInfo.tag = "playersInfo"
         val historyIntro = TextView(this@Game)
         historyIntro.tag = "historyIntro"
         val historyInfo = WebView(this@Game)
-        historyInfo.setLayoutParams(LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT))
-        historyInfo.setVerticalScrollBarEnabled(false)
+        historyInfo.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+        historyInfo.isVerticalScrollBarEnabled = false
         historyInfo.tag = "historyInfo"
         val handsIntro = TextView(this@Game)
         handsIntro.tag = "handsIntro"
         val handsInfo = WebView(this@Game)
-        handsInfo.setLayoutParams(LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT))
-        handsInfo.setVerticalScrollBarEnabled(false)
+        handsInfo.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+        handsInfo.isVerticalScrollBarEnabled = false
         handsInfo.tag = "handsInfo"
         val statusInfo = TextView(this@Game)
         statusInfo.tag = "statusInfo"
@@ -334,7 +334,7 @@ class Game : AppCompatActivity() {
             if (gi.findViewWithTag<WebView>("playersInfo") == null) gi.addView(playersInfo)
             if (gi.findViewWithTag<TextView>("statusInfo") == null) gi.addView(statusInfo)
             val generalInfoData = makeTable(
-                makeRow(makeCell("UUID"), makeCell("$gameUuid")),
+                makeRow(makeCell("UUID"), makeCell(gameUuid)),
                 makeRow(makeCell("Visibility"), makeCell(if (gameObject.getString("public") == "true") "Public" else "Private")),
                 makeRow(makeCell("Admin"), makeCell(gameObject.getString("admin_nickname")))
             )
@@ -493,17 +493,21 @@ class Game : AppCompatActivity() {
         }
 
         fun generateGameInfo(gameObject: JSONObject) {
-            if (gameObject.getString("status") == "Not started") {
-                generatePreStartGameInfo(gameObject, gi)
-            } else if (gameObject.getString("status") == "Running") {
-                generateRunningGameInfo(gameObject, gi)
-            } else if (gameObject.getString("status") == "Finished") {
-                generateFinishedGameInfo(gameObject, gi)
+            when {
+                gameObject.getString("status") == "Not started" -> {
+                    generatePreStartGameInfo(gameObject, gi)
+                }
+                gameObject.getString("status") == "Running" -> {
+                    generateRunningGameInfo(gameObject, gi)
+                }
+                gameObject.getString("status") == "Finished" -> {
+                    generateFinishedGameInfo(gameObject, gi)
+                }
             }
         }
 
         fun sendAction(actionId: Int) {
-            val queryUrl = baseUrl + "/$gameUuid/play?player_uuid=$playerUuid&action_id=$actionId"
+            val queryUrl = "$baseUrl/$gameUuid/play?player_uuid=$playerUuid&action_id=$actionId"
             val request = Request.Builder()
                 .url(queryUrl)
                 .build()
@@ -551,8 +555,8 @@ class Game : AppCompatActivity() {
             val link = "Join me for a game of Blef: https://blef.app/?link=http://blef.app/$gameUuid"
             val intent = Intent(Intent.ACTION_SEND)
             intent.type = "text/plain"
-            intent.putExtra(Intent.EXTRA_TEXT, link.toString())
-            startActivity(Intent.createChooser(intent, "Share via"));
+            intent.putExtra(Intent.EXTRA_TEXT, link)
+            startActivity(Intent.createChooser(intent, "Share via"))
         }
 
         val publicPrivateButton = MaterialButton(this@Game)

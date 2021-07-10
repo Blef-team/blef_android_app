@@ -26,12 +26,11 @@ class JoiningWithUuid : AppCompatActivity() {
 
         val linkData: Uri? = intent?.data
 
-        val gameUuid = if (linkData != null) linkData.toString().removePrefix("http://blef.app/") else intent.getStringExtra(
-            game_uuid
-        )
+        val gameUuid = linkData?.toString()?.removePrefix("http://blef.app/")
+            ?: intent.getStringExtra("game_uuid")
 
-        val uuid_text = findViewById<TextView>(R.id.join_with_uuid_uuid_text)
-        uuid_text.text = "You are joining game $gameUuid"
+        val uuidText = findViewById<TextView>(R.id.join_with_uuid_uuid_text)
+        uuidText.text = "You are joining game $gameUuid"
 
         val nicknameEdittext = findViewById<EditText>(R.id.join_with_uuid_nickname)
         nicknameEdittext.requestFocus()
