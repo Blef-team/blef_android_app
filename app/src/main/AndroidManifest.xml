@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="app.blef.blef">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application
+        android:allowBackup="true"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/blef_icon"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Blef">
+        <activity android:name="app.blef.blef.Creating"/>
+        <activity android:name="app.blef.blef.JoiningWithoutUuid" />
+        <activity android:name="app.blef.blef.JoiningWithUuid" >
+            <intent-filter android:label="@string/join_via_invite_link">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="http"
+                      android:host="blef.app"
+                      android:pathPrefix="/" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="app.blef.blef.Game"
+            android:parentActivityName="app.blef.blef.MainActivity" />
+        <activity android:name="app.blef.blef.MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>

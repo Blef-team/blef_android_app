@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">Blef</string>
+    <string name="edit_message">Game UUID</string>
+    <string name="button_send">View</string>
+    <string name="nickname_prompt">Pick a nickname:</string>
+    <string name="uuid_prompt">Paste the game\'s UUID:</string>
+    <string name="nickname_hint">Nickname...</string>
+    <string name="uuid_hint">00000000-0000-0000-0000-000000000000</string>
+    <string name="create">Create</string>
+    <string name="join">Join</string>
+    <string name="join_via_invite_link">Join a Blef game</string>
+    <string name="no_games">There are no public games.</string>
+    <string name="players">Players</string>
+</resources>
