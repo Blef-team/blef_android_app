@@ -412,9 +412,10 @@ class Game : AppCompatActivity() {
             var handsInfoData = ""
             if (!roundEnded && nickname != null) {
                 handsIntro.text = "Your hand:"
-                for (i in 0 until handsArray.length()) {
-                    val cardValue = handsArray.getJSONObject(i).getString("value")
-                    val cardColour = handsArray.getJSONObject(i).getString("colour")
+                val iHand = handsArray.getJSONObject(0).getJSONArray("hand")
+                for (i in 0 until iHand.length()) {
+                    val cardValue = iHand.getJSONObject(i).getString("value")
+                    val cardColour = iHand.getJSONObject(i).getString("colour")
                     handsInfoData = handsInfoData
                         .plus("<img src=\"cards/specific/$cardValue$cardColour.png\" width=\"55\" height=\"55\">")
                 }
@@ -422,15 +423,14 @@ class Game : AppCompatActivity() {
                 handsInfo.loadDataWithBaseURL("file:///android_asset/", handsInfoData, "text/html", "UTF-8", null)
             } else if (roundEnded) {
                 handsIntro.text = "Hands:"
-                for (i in 0 until playersArray.length()) {
-                    val iNickname = playersArray.getJSONObject(i).getString("nickname")
+                for (i in 0 until handsArray.length()) {
+                    val iNickname = handsArray.getJSONObject(i).getString("nickname")
                     var cardsData = ""
-                    for (j in 0 until handsArray.length()) {
-                        val cardValue = handsArray.getJSONObject(j).getString("value")
-                        val cardColour = handsArray.getJSONObject(j).getString("colour")
-                        if (handsArray.getJSONObject(j).getString("player") == iNickname) {
-                            cardsData = cardsData.plus("<img src=\"cards/specific/$cardValue$cardColour.png\" width=\"55\" height=\"55\">")
-                        }
+                    val iHand = handsArray.getJSONObject(i).getJSONArray("hand")
+                    for (j in 0 until iHand.length()) {
+                        val cardValue = iHand.getJSONObject(j).getString("value")
+                        val cardColour = iHand.getJSONObject(j).getString("colour")
+                        cardsData = cardsData.plus("<img src=\"cards/specific/$cardValue$cardColour.png\" width=\"55\" height=\"55\">")
                     }
                     handsInfoData = handsInfoData.plus(makeRow(
                         makeCell(if (iNickname == nickname) "$iNickname (You)" else iNickname),
