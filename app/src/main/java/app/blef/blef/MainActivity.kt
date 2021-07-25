@@ -83,7 +83,7 @@ class MainActivity : AppCompatActivity() {
                 for (i in 0 until unfilteredPublicGames.length()) {
                     var isMatch = false
                     val iGame = unfilteredPublicGames.getJSONObject(i)
-                    if (iGame.getString("uuid").contains(filter.text.toString(), ignoreCase = true)) {
+                    if (iGame.getString("game_uuid").contains(filter.text.toString(), ignoreCase = true)) {
                         isMatch = true
                     }
                     val players = iGame.getJSONArray("players")
@@ -111,7 +111,7 @@ class MainActivity : AppCompatActivity() {
 
             if (length > 0) {
                 for (i in 0 until length) {
-                    val gameUuid = JSONObject(filteredPublicGames.get(i).toString()).getString("uuid")
+                    val gameUuid = JSONObject(filteredPublicGames.get(i).toString()).getString("game_uuid")
                     val playersArray = JSONObject(filteredPublicGames.get(i).toString()).getJSONArray("players")
                     val playersList = ArrayList<String>()
                     for (j in 0 until playersArray.length()){
@@ -119,26 +119,20 @@ class MainActivity : AppCompatActivity() {
                     }
                     val playersText = playersList.joinToString(separator = ", ")
 
-                    val startedText = if (JSONObject(filteredPublicGames.get(i).toString()).getString("started") == "false") {
-                        "Not yet started"
-                    } else {
-                        "Already started"
-                    }
-
                     val gameText = TextView(this@MainActivity)
                     gameText.setPadding(0, 30, 0, 0)
-                    gameText.text = "$gameUuid\n$startedText\n${getString(R.string.players)}: $playersText"
+                    val shortenedUuid = gameUuid.subSequence(0, 7).toString().plus("…")
+                    gameText.text = "UUID: $shortenedUuid\n${getString(R.string.players)}: $playersText"
                     gameText.setOnClickListener {
-                        val uuid = JSONObject(filteredPublicGames.get(i).toString()).getString("uuid")
                         val intent = Intent(this@MainActivity, JoiningWithUuid::class.java).apply {
-                            putExtra("game_uuid", uuid)
+                            putExtra("game_uuid", gameUuid)
                         }
                         startActivity(intent)
                     }
                     pg.addView(gameText, i + 2)
                 }
             } else {
-                if (filter == null) {
+                if (filter.text.toString() == "") {
                     val noGames = TextView(this@MainActivity)
                     noGames.text = getString(R.string.no_games)
                     pg.addView(noGames, 2)
