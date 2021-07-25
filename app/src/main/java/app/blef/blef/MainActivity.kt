@@ -11,7 +11,6 @@ import android.os.Looper
 import android.widget.*
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.MutableLiveData
-import com.google.android.material.snackbar.Snackbar
 import okhttp3.*
 import org.json.JSONArray
 import org.json.JSONObject
@@ -51,8 +50,7 @@ class MainActivity : AppCompatActivity() {
                     override fun onResponse(call: Call, response: Response) {
                         response.use {
                             if (!response.isSuccessful) {
-                                val engineErrorBar = Snackbar.make(findViewById(R.id.activity_game), response.body!!.string(), 3000)
-                                engineErrorBar.show()
+                                showEngineError(R.id.activity_main, response)
                             } else {
                                 val newMessage = response.body!!.string()
                                 if (newMessage != message.value.toString()) {
@@ -80,7 +78,7 @@ class MainActivity : AppCompatActivity() {
         fun generatePublicGames() {
             val unfilteredPublicGames = JSONArray(message.value.toString())
             var filteredPublicGames = JSONArray()
-            val filter = findViewById<LinearLayout>(R.id.publicGames).findViewWithTag<EditText>("player_filter")
+            val filter = pg.findViewWithTag<EditText>("player_filter")
             if (filter != null) {
                 for (i in 0 until unfilteredPublicGames.length()) {
                     var isMatch = false

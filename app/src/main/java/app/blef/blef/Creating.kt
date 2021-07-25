@@ -56,8 +56,7 @@ class Creating : AppCompatActivity() {
                                 override fun onResponse(call: Call, response: Response) {
                                     response.use {
                                         if (!response.isSuccessful) {
-                                            val engineErrorBar = Snackbar.make(findViewById(R.id.activity_creating), response.body!!.string(), 3000)
-                                            engineErrorBar.show()
+                                            showEngineError(R.id.activity_creating, response)
                                         } else {
                                             val jsonBody2 = JSONObject(response.body!!.string())
                                             val playerUuid = jsonBody2.getString("player_uuid")

@@ -152,8 +152,7 @@ class Game : AppCompatActivity() {
                 override fun onResponse(call: Call, response: Response) {
                     response.use {
                         if (!response.isSuccessful) {
-                            val engineErrorBar = Snackbar.make(findViewById(R.id.activity_game), response.body!!.string(), 3000)
-                            engineErrorBar.show()
+                            showEngineError(R.id.activity_game, response)
                         } else {
                             val newMessage = response.body!!.string()
                             if (newMessage != message.value.toString()) {
@@ -179,10 +178,7 @@ class Game : AppCompatActivity() {
                                         override fun onResponse(call: Call, response: Response) {
                                             response.use {
                                                 if (!response.isSuccessful) {
-                                                    val engineErrorBar = Snackbar.make(findViewById(
-                                                        R.id.activity_game
-                                                    ), response.body!!.string(), 3000)
-                                                    engineErrorBar.show()
+                                                    showEngineError(R.id.activity_game, response)
                                                 } else {
                                                     val newMessage2 = response.body!!.string()
                                                     mHandler.post{
@@ -215,8 +211,7 @@ class Game : AppCompatActivity() {
                 override fun onResponse(call: Call, response: Response) {
                     response.use {
                         if (!response.isSuccessful) {
-                            val engineErrorBar = Snackbar.make(findViewById(R.id.activity_game), response.body!!.string(), 3000)
-                            engineErrorBar.show()
+                            showEngineError(R.id.activity_game, response)
                         } else {
                             val newMessage = response.body!!.string()
                             if (newMessage != message.value.toString()) {

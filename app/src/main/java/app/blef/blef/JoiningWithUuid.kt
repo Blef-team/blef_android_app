@@ -14,7 +14,6 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
-import com.google.android.material.snackbar.Snackbar
 import okhttp3.*
 import org.json.JSONObject
 import java.io.IOException
@@ -51,8 +50,7 @@ class JoiningWithUuid : AppCompatActivity() {
                 override fun onResponse(call: Call, response: Response) {
                     response.use {
                         if (!response.isSuccessful) {
-                            val engineErrorBar = Snackbar.make(findViewById(R.id.activity_joining_with_uuid), response.body!!.string(), 3000)
-                            engineErrorBar.show()
+                            showEngineError(R.id.activity_joining_with_uuid, response)
                         } else {
                             val jsonBody = JSONObject(response.body!!.string())
                             val playerUuid = jsonBody.getString("player_uuid")
