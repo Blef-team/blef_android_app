@@ -385,7 +385,7 @@ class Game : AppCompatActivity() {
             var roundEnded = false
             var loser = ""
             if (historyArray.length() > 0) {
-                for (i in 0 until historyArray.length()) {
+                for (i in historyArray.length() - 1 downTo 0) {
                     val iNickname = historyArray.getJSONObject(i).getString("player")
                     val iAction = historyArray.getJSONObject(i).getInt("action_id")
                     if (iAction <= 88) {
