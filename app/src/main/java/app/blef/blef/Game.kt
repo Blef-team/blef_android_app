@@ -116,6 +116,9 @@ class Game : AppCompatActivity() {
         setContentView(R.layout.activity_game)
 
         val pixelDensity = resources.displayMetrics.density
+        fun adjustForDensity(raw: Int): Int {
+            return((raw * pixelDensity).toInt())
+        }
 
         val gameUuid = intent.getStringExtra("game_uuid").toString().lowercase()
         val playerUuid = intent.getStringExtra("player_uuid")
@@ -516,16 +519,18 @@ class Game : AppCompatActivity() {
             })
         }
 
+        val buttonParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+
         val confirmButton = MaterialButton(this@Game)
         confirmButton.text = "Confirm bet"
-        confirmButton.height = (60 * pixelDensity).toInt()
+        confirmButton.height = adjustForDensity(90)
         confirmButton.setOnClickListener {
             sendAction(sets.indexOf(findViewById<Spinner>(0).selectedItem.toString()))
         }
 
         val checkButton = MaterialButton(this@Game)
         checkButton.text = "Check"
-        checkButton.height = (60 * pixelDensity).toInt()
+        checkButton.height = adjustForDensity(90)
         checkButton.setOnClickListener {
             sendAction(88)
         }
@@ -533,19 +538,19 @@ class Game : AppCompatActivity() {
         val updateButton = MaterialButton(this@Game)
         updateButton.tag = "update"
         updateButton.text = "Go to current round"
-        updateButton.height = (60 * pixelDensity).toInt()
+        updateButton.height = adjustForDensity(90)
         updateButton.setOnClickListener{hardUpdateGame()}
 
         val startButton = MaterialButton(this@Game)
         startButton.tag = "start"
         startButton.text = "Start game"
-        startButton.height = (60 * pixelDensity).toInt()
+        startButton.height = adjustForDensity(60)
         startButton.setOnClickListener{start()}
 
         val inviteButton = MaterialButton(this@Game)
         inviteButton.tag = "inviteButton"
         inviteButton.text = "Send invite"
-        inviteButton.height = (60 * pixelDensity).toInt()
+        inviteButton.height = adjustForDensity(60)
         inviteButton.setOnClickListener{
             val link = "Join me for a game of Blef: https://blef.app/?link=http://blef.app/$gameUuid"
             val intent = Intent(Intent.ACTION_SEND)
@@ -555,7 +560,7 @@ class Game : AppCompatActivity() {
         }
 
         val publicPrivateButton = MaterialButton(this@Game)
-        publicPrivateButton.height = (60 * pixelDensity).toInt()
+        publicPrivateButton.height = adjustForDensity(60)
 
         fun makeBetChooser(lastActionId: Int): Spinner {
             val betChooser = Spinner(this@Game)
@@ -564,9 +569,13 @@ class Game : AppCompatActivity() {
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             betChooser.adapter = adapter
             betChooser.id = 0
-            betChooser.setPadding(0, 0, 0, 20)
+            betChooser.setPadding(0, 0, 0, adjustForDensity(20))
             return(betChooser)
         }
+
+        val confirmOrCheck = LinearLayout(this@Game)
+        confirmOrCheck.orientation = LinearLayout.HORIZONTAL
+        confirmOrCheck.isBaselineAligned = false
 
         fun generateGameControls(gameObject: JSONObject) {
             val ll = findViewById<LinearLayout>(R.id.controlPanel)
@@ -592,17 +601,24 @@ class Game : AppCompatActivity() {
                 ll.addView(publicPrivateButton)
             } else if (gameObject.getString("cp_nickname") == nickname) {
                 // Time to move
+                confirmOrCheck.removeAllViews()
                 if (gameObject.getJSONArray("history").length() == 0) {
                     ll.addView(makeBetChooser(-1))
-                    ll.addView(confirmButton)
+                    confirmOrCheck.addView(confirmButton)
+                    buttonParams.setMargins(0, 0, 0, 0)
                 } else if (history.getJSONObject(history.length() - 1).getInt("action_id") in 0..86) {
                     val lastAction = history.getJSONObject(history.length() - 1).getInt("action_id")
                     ll.addView(makeBetChooser(lastAction))
-                    ll.addView(confirmButton)
-                    ll.addView(checkButton)
+                    confirmOrCheck.addView(confirmButton)
+                    confirmOrCheck.addView(checkButton)
+                    buttonParams.setMargins(adjustForDensity(5), 0, adjustForDensity(5), 0)
                 } else {
-                    ll.addView(checkButton)
+                    confirmOrCheck.addView(checkButton)
+                    buttonParams.setMargins(0, 0, 0, 0)
                 }
+                confirmButton.layoutParams = buttonParams
+                checkButton.layoutParams = buttonParams
+                ll.addView(confirmOrCheck)
             }
 
             if (gameObject.getString("status") == "Not started") {
