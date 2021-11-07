@@ -37,7 +37,7 @@ class JoiningWithUuid : AppCompatActivity() {
         imm.showSoftInput(nicknameEdittext, 0)
 
         findViewById<Button>(R.id.join_with_uuid_join_button).setOnClickListener {
-            val nickname = nicknameEdittext.text.toString()
+            val nickname = nicknameEdittext.text.toString().replace(" ", "_")
             val mHandler = Handler(Looper.getMainLooper())
             val client = OkHttpClient()
             val request = Request.Builder()

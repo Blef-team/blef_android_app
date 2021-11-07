@@ -28,7 +28,7 @@ class Creating : AppCompatActivity() {
         imm.showSoftInput(nicknameEdittext, 0)
 
         findViewById<Button>(R.id.create_create_button).setOnClickListener {
-            val nickname = nicknameEdittext.text.toString()
+            val nickname = nicknameEdittext.text.toString().replace(" ", "_")
             val mHandler = Handler(Looper.getMainLooper())
             val client = OkHttpClient()
             val request1 = Request.Builder()

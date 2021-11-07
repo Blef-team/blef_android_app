@@ -21,7 +21,7 @@ class JoiningWithoutUuid : AppCompatActivity() {
 
         findViewById<Button>(R.id.join_without_uuid_join_button).setOnClickListener {
             val gameUuid = findViewById<EditText>(R.id.join_without_uuid_uuid).text.toString()
-            val nickname = findViewById<EditText>(R.id.join_without_uuid_nickname).text.toString()
+            val nickname = findViewById<EditText>(R.id.join_without_uuid_nickname).text.toString().replace(" ", "_")
             val mHandler = Handler(Looper.getMainLooper())
             val client = OkHttpClient()
             val request = Request.Builder()

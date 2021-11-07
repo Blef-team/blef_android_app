@@ -307,6 +307,10 @@ class Game : AppCompatActivity() {
         fun addOpenStyle(s: String): String {
             return("<style>".plus(assets.open("open_table_style.css").bufferedReader().lines().collect(Collectors.joining())).plus("</style>").plus(s))
         }
+        fun formatNickname(raw: String, own: String?): String {
+            val formatted = (if (raw == own) "$raw (You)" else raw).replace("_", " ")
+            return(formatted)
+        }
 
         val gi = findViewById<LinearLayout>(R.id.gameInfo)
         val generalInfo = WebView(this@Game)
@@ -338,7 +342,7 @@ class Game : AppCompatActivity() {
             val generalInfoData = makeTable(
                 makeRow(makeCell("UUID"), makeCell(gameUuid)),
                 makeRow(makeCell("Visibility"), makeCell(if (gameObject.getString("public") == "true") "Public" else "Private")),
-                makeRow(makeCell("Admin"), makeCell(gameObject.getString("admin_nickname")))
+                makeRow(makeCell("Admin"), makeCell(formatNickname(gameObject.getString("admin_nickname"), nickname)))
             )
             generalInfo.loadData(addStyle(generalInfoData), "text/html", "UTF-8")
 
@@ -346,7 +350,8 @@ class Game : AppCompatActivity() {
             var playersInfoData = ""
             val playersArray = gameObject.getJSONArray("players")
             for (i in 0 until playersArray.length()) {
-                playersInfoData = playersInfoData.plus(makeRow(makeCell(playersArray.getJSONObject(i).getString("nickname"))))
+                playersInfoData = playersInfoData
+                    .plus(makeRow(makeCell(formatNickname(playersArray.getJSONObject(i).getString("nickname"), nickname))))
             }
             playersInfoData = addStyle(makeTable(playersInfoData))
             playersInfo.loadData(playersInfoData, "text/html", "UTF-8")
@@ -375,7 +380,7 @@ class Game : AppCompatActivity() {
                         emptyCardHTML.repeat(max.toInt() - iCards)
                     )
                     playersInfoData = playersInfoData.plus(makeRow(
-                        makeCell((if (iNickname == nickname) "$iNickname (You)" else iNickname).plus("<br>").plus(cardsData))
+                        makeCell((formatNickname(iNickname, nickname)).plus("<br>").plus(cardsData))
                     ))
                 }
             } else if (handsArray.length() == 1) {
@@ -397,7 +402,7 @@ class Game : AppCompatActivity() {
                         cardsData = questionCardHTML.repeat(iCards).plus(emptyCardHTML.repeat(max.toInt() - iCards))
                     }
                     playersInfoData = playersInfoData.plus(makeRow(
-                        makeCell((if (iNickname == nickname) "$iNickname (You)" else iNickname).plus("<br>").plus(cardsData))
+                        makeCell((formatNickname(iNickname, nickname)).plus("<br>").plus(cardsData))
                     ))
                 }
             } else {
@@ -412,7 +417,7 @@ class Game : AppCompatActivity() {
                     }
                     cardsData = cardsData.plus(emptyCardHTML.repeat(max.toInt() - iHand.length()))
                     playersInfoData = playersInfoData.plus(makeRow(
-                        makeCell((if (iNickname == nickname) "$iNickname (You)" else iNickname).plus("<br>").plus(cardsData))
+                        makeCell((formatNickname(iNickname, nickname)).plus("<br>").plus(cardsData))
                     ))
                 }
             }
@@ -426,13 +431,13 @@ class Game : AppCompatActivity() {
             if (roundEnded) {
                 val loser = historyArray.getJSONObject(historyArray.length() - 1).getString("player")
                 val loserHTML = "<p style=\"display: flex; align-items: center;\"><img src=\"cardPlus.png\" width=\"40\" height=\"40\">"
-                    .plus(if (loser == nickname) "$loser (You)" else loser)
+                    .plus(formatNickname(loser, nickname))
                     .plus("</p>")
                 loserInfo.loadDataWithBaseURL("file:///android_asset/", loserHTML, "text/html", "UTF-8", null)
             } else {
                 val cp = gameObject.getString("cp_nickname")
                 historyInfoData = historyInfoData.plus(makeRow(
-                    makeCell(if (cp == nickname) "$cp (You)" else cp),
+                    makeCell(formatNickname(cp, nickname)),
                     makeCell("...")
                 ))
                 loserInfo.loadDataWithBaseURL("file:///android_asset/", "", "text/html", "UTF-8", null)
@@ -444,7 +449,7 @@ class Game : AppCompatActivity() {
                     val iAction = historyArray.getJSONObject(i).getInt("action_id")
                     if (iAction <= 88) {
                         historyInfoData = historyInfoData.plus(makeRow(
-                            makeCell(if (iNickname == nickname) "$iNickname (You)" else iNickname),
+                            makeCell(formatNickname(iNickname, nickname)),
                             makeCell(if (iAction <= 87) sets[iAction] else "Check")
                         ))
                     }
@@ -474,7 +479,7 @@ class Game : AppCompatActivity() {
                 val iNickname = playersArray.getJSONObject(i).getString("nickname")
                 val iCards = playersArray.getJSONObject(i).getInt("n_cards")
                 playersInfoData = playersInfoData.plus(makeRow(
-                    makeCell(if (iNickname == nickname) "$iNickname (You)" else iNickname),
+                    makeCell(formatNickname(iNickname, nickname)),
                     makeCell(if (iCards == 0) "" else "\uD83D\uDC51")
                 ))
             }
