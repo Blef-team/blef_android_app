@@ -7,10 +7,12 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebView
 import android.widget.*
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.MutableLiveData
 import com.google.android.material.button.MaterialButton
@@ -649,6 +651,22 @@ class Game : AppCompatActivity() {
         fixedRateTimer("update_game", false, 0L, 1000) {
             if (hasWindowFocus() && gameFinished.value == false && updateOnHold.value == false) updateGame()
         }
+    }
+
+    override fun onBackPressed() {
+        AlertDialog.Builder(this)
+            .setMessage("Leave the game?")
+            .setCancelable(false)
+            .setPositiveButton(
+                "Yes"
+            ) { dialog, id -> super.onBackPressed() }
+            .setNegativeButton("No", null)
+            .show()
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        onBackPressed()
+        return(true)
     }
 }
 
