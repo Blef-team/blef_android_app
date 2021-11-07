@@ -112,6 +112,8 @@ val sets = arrayOf(
     "Great straight flush (9-A) ♠"
 )
 
+class Card(val value: Int, val suit: Int) {}
+
 class Game : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -387,11 +389,14 @@ class Game : AppCompatActivity() {
                     } else if (iNickname == nickname) {
                         cardsData = ""
                         val iHand = handsArray.getJSONObject(0).getJSONArray("hand")
-                        for (i in 0 until iHand.length()) {
-                            val cardValue = iHand.getJSONObject(i).getString("value")
-                            val cardColour = iHand.getJSONObject(i).getString("colour")
-                            cardsData = cardsData.plus("<img src=\"cards/cropped/$cardValue$cardColour.png\" width=\"48\" height=\"60\"> ")
+                        val cardsList = ArrayList<Card>()
+                        for (j in 0 until iHand.length()) {
+                            cardsList.add(
+                                Card(iHand.getJSONObject(j).getInt("value"), iHand.getJSONObject(j).getInt("colour"))
+                            )
                         }
+                        var sortedList = cardsList.sortedWith(compareBy({ -it.value }, { -it.suit }))
+                        for (card in sortedList) cardsData = cardsData.plus("<img src=\"cards/cropped/${card.value}${card.suit}.png\" width=\"48\" height=\"60\"> ")
                         cardsData = cardsData.plus(emptyCardHTML.repeat(max.toInt() - iCards))
                     } else {
                         cardsData = questionCardHTML.repeat(iCards).plus(emptyCardHTML.repeat(max.toInt() - iCards))
@@ -405,11 +410,14 @@ class Game : AppCompatActivity() {
                     val iNickname = handsArray.getJSONObject(i).getString("nickname")
                     var cardsData = ""
                     val iHand = handsArray.getJSONObject(i).getJSONArray("hand")
+                    val cardsList = ArrayList<Card>()
                     for (j in 0 until iHand.length()) {
-                        val cardValue = iHand.getJSONObject(j).getString("value")
-                        val cardColour = iHand.getJSONObject(j).getString("colour")
-                        cardsData = cardsData.plus("<img src=\"cards/cropped/$cardValue$cardColour.png\" width=\"48\" height=\"60\"> ")
+                        cardsList.add(
+                            Card(iHand.getJSONObject(j).getInt("value"), iHand.getJSONObject(j).getInt("colour"))
+                        )
                     }
+                    var sortedList = cardsList.sortedWith(compareBy({ -it.value }, { -it.suit }))
+                    for (card in sortedList) cardsData = cardsData.plus("<img src=\"cards/cropped/${card.value}${card.suit}.png\" width=\"48\" height=\"60\"> ")
                     cardsData = cardsData.plus(emptyCardHTML.repeat(max.toInt() - iHand.length()))
                     playersInfoData = playersInfoData.plus(makeRow(
                         makeCell((formatNickname(iNickname, nickname)).plus("<br>").plus(cardsData))
