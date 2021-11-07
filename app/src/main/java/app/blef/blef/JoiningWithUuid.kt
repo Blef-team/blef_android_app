@@ -24,6 +24,7 @@ class JoiningWithUuid : AppCompatActivity() {
         setContentView(R.layout.activity_joining_with_uuid)
 
         val linkData: Uri? = intent?.data
+        val sharedPref = this.getSharedPreferences("app.blef.blef.MAIN", Context.MODE_PRIVATE)
 
         val gameUuid = linkData?.toString()?.removePrefix("http://blef.app/")
             ?: intent.getStringExtra("game_uuid")
@@ -32,12 +33,18 @@ class JoiningWithUuid : AppCompatActivity() {
         uuidText.text = "You are joining game $gameUuid"
 
         val nicknameEdittext = findViewById<EditText>(R.id.join_with_uuid_nickname)
+        nicknameEdittext.setText(sharedPref.getString("nickname", ""))
         nicknameEdittext.requestFocus()
         val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.showSoftInput(nicknameEdittext, 0)
 
         findViewById<Button>(R.id.join_with_uuid_join_button).setOnClickListener {
-            val nickname = nicknameEdittext.text.toString().replace(" ", "_")
+            val rawNickname = nicknameEdittext.text.toString()
+            with (sharedPref.edit()) {
+                putString("nickname", rawNickname)
+                apply()
+            }
+            val nickname = rawNickname.replace(" ", "_")
             val mHandler = Handler(Looper.getMainLooper())
             val client = OkHttpClient()
             val request = Request.Builder()

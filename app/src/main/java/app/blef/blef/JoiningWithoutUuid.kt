@@ -3,6 +3,7 @@
 
 package app.blef.blef
 
+import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -19,9 +20,19 @@ class JoiningWithoutUuid : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_joining_without_uuid)
 
+        val sharedPref = this.getSharedPreferences("app.blef.blef.MAIN", Context.MODE_PRIVATE)
+        val nicknameEdittext = findViewById<EditText>(R.id.join_without_uuid_nickname)
+        nicknameEdittext.setText(sharedPref.getString("nickname", ""))
+
         findViewById<Button>(R.id.join_without_uuid_join_button).setOnClickListener {
+            val rawNickname = nicknameEdittext.text.toString()
+            with (sharedPref.edit()) {
+                putString("nickname", rawNickname)
+                apply()
+            }
+            val nickname = rawNickname.replace(" ", "_")
+
             val gameUuid = findViewById<EditText>(R.id.join_without_uuid_uuid).text.toString()
-            val nickname = findViewById<EditText>(R.id.join_without_uuid_nickname).text.toString().replace(" ", "_")
             val mHandler = Handler(Looper.getMainLooper())
             val client = OkHttpClient()
             val request = Request.Builder()
