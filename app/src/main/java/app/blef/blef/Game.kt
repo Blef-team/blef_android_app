@@ -7,6 +7,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.view.View
+import android.view.ViewGroup
 import android.webkit.WebView
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
@@ -140,6 +142,9 @@ class Game : AppCompatActivity() {
         val mHandler = Handler(Looper.getMainLooper())
         val client = OkHttpClient()
         val baseUrl = "https://n4p6oovxsg.execute-api.eu-west-2.amazonaws.com/games"
+
+        val emptyCardHTML = "<img src=\"cardEmpty.png\" width=\"48\" height=\"60\"> "
+        val questionCardHTML = "<img src=\"cardQuestion.png\" width=\"48\" height=\"60\"> "
 
         fun updateGame() {
             val queryUrl = baseUrl + if (playerUuid != null)  "/$gameUuid?player_uuid=$playerUuid" else "/$gameUuid"
@@ -299,14 +304,19 @@ class Game : AppCompatActivity() {
         fun addStyle(s: String): String {
             return("<style>".plus(assets.open("table_style.css").bufferedReader().lines().collect(Collectors.joining())).plus("</style>").plus(s))
         }
+        fun addOpenStyle(s: String): String {
+            return("<style>".plus(assets.open("open_table_style.css").bufferedReader().lines().collect(Collectors.joining())).plus("</style>").plus(s))
+        }
 
         val gi = findViewById<LinearLayout>(R.id.gameInfo)
         val generalInfo = WebView(this@Game)
         generalInfo.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
         generalInfo.tag = "generalInfo"
         generalInfo.isVerticalScrollBarEnabled = false
-        val playersIntro = TextView(this@Game)
+        val playersIntro = WebView(this@Game)
         playersIntro.tag = "playersIntro"
+        playersIntro.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+        playersIntro.isVerticalScrollBarEnabled = false
         val playersInfo = WebView(this@Game)
         playersInfo.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
         playersInfo.isVerticalScrollBarEnabled = false
@@ -317,20 +327,14 @@ class Game : AppCompatActivity() {
         historyInfo.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
         historyInfo.isVerticalScrollBarEnabled = false
         historyInfo.tag = "historyInfo"
-        val handsIntro = TextView(this@Game)
-        handsIntro.tag = "handsIntro"
-        val handsInfo = WebView(this@Game)
-        handsInfo.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-        handsInfo.isVerticalScrollBarEnabled = false
-        handsInfo.tag = "handsInfo"
         val statusInfo = TextView(this@Game)
         statusInfo.tag = "statusInfo"
+        val loserInfo = WebView(this@Game)
+        loserInfo.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+        loserInfo.isVerticalScrollBarEnabled = false
+        loserInfo.tag = "loserInfo"
 
         fun generatePreStartGameInfo(gameObject: JSONObject, gi: LinearLayout) {
-            if (gi.findViewWithTag<WebView>("generalInfo") == null) gi.addView(generalInfo)
-            if (gi.findViewWithTag<TextView>("playersIntro") == null) gi.addView(playersIntro)
-            if (gi.findViewWithTag<WebView>("playersInfo") == null) gi.addView(playersInfo)
-            if (gi.findViewWithTag<TextView>("statusInfo") == null) gi.addView(statusInfo)
             val generalInfoData = makeTable(
                 makeRow(makeCell("UUID"), makeCell(gameUuid)),
                 makeRow(makeCell("Visibility"), makeCell(if (gameObject.getString("public") == "true") "Public" else "Private")),
@@ -338,7 +342,7 @@ class Game : AppCompatActivity() {
             )
             generalInfo.loadData(addStyle(generalInfoData), "text/html", "UTF-8")
 
-            playersIntro.text = "Players:"
+            playersIntro.loadData("Players:", "text/html", "UTF-8")
             var playersInfoData = ""
             val playersArray = gameObject.getJSONArray("players")
             for (i in 0 until playersArray.length()) {
@@ -348,45 +352,92 @@ class Game : AppCompatActivity() {
             playersInfo.loadData(playersInfoData, "text/html", "UTF-8")
 
             statusInfo.text = "The game has not started yet."
-        }
 
-        fun generateRunningGameInfo(gameObject: JSONObject, gi: LinearLayout) {
             if (gi.findViewWithTag<WebView>("generalInfo") == null) gi.addView(generalInfo)
             if (gi.findViewWithTag<TextView>("playersIntro") == null) gi.addView(playersIntro)
             if (gi.findViewWithTag<WebView>("playersInfo") == null) gi.addView(playersInfo)
-            if (gi.findViewWithTag<TextView>("historyIntro") == null) gi.addView(historyIntro)
-            if (gi.findViewWithTag<WebView>("historyInfo") == null) gi.addView(historyInfo)
-            if (gi.findViewWithTag<TextView>("handsIntro") == null) gi.addView(handsIntro)
-            if (gi.findViewWithTag<WebView>("handsInfo") == null) gi.addView(handsInfo)
-            if (gi.findViewWithTag<TextView>("statusInfo") != null && gi.getChildAt(gi.childCount - 1) != statusInfo) {
-                gi.removeView(statusInfo) // Status info should not be in the middle
-            }
             if (gi.findViewWithTag<TextView>("statusInfo") == null) gi.addView(statusInfo)
+        }
 
-            val generalInfoData = makeTable(
-                makeRow(makeCell("Visibility"), makeCell(if (gameObject.getString("public") == "true") "Public" else "Private")),
-                makeRow(makeCell("Max cards"), makeCell(gameObject.getString("max_cards")))
-            )
-            generalInfo.loadData(addStyle(generalInfoData), "text/html", "UTF-8")
-
-            playersIntro.text = "Players:"
+        fun generateRunningGameInfo(gameObject: JSONObject, gi: LinearLayout) {
+            val max = gameObject.getString("max_cards")
             var playersInfoData = ""
             val playersArray = gameObject.getJSONArray("players")
-            for (i in 0 until playersArray.length()) {
-                val iNickname = playersArray.getJSONObject(i).getString("nickname")
-                val iCards = playersArray.getJSONObject(i).getInt("n_cards")
-                playersInfoData = playersInfoData.plus(makeRow(
-                    makeCell(if (iNickname == nickname) "$iNickname (You)" else iNickname),
-                    makeCell(if (iCards == 0) "Lost" else iCards.toString())
-                ))
-            }
-            playersInfo.loadData(addStyle(makeTable(playersInfoData)), "text/html", "UTF-8")
+            val handsArray = gameObject.getJSONArray("hands")
 
-            historyIntro.text = "Actions so far:"
+            var cardsData = ""
+
+            if (handsArray.length() == 0) {
+                for (i in 0 until playersArray.length()) {
+                    val iNickname = playersArray.getJSONObject(i).getString("nickname")
+                    val iCards = playersArray.getJSONObject(i).getInt("n_cards")
+                    cardsData = if (iCards == 0) "Lost" else questionCardHTML.repeat(iCards).plus(
+                        emptyCardHTML.repeat(max.toInt() - iCards)
+                    )
+                    playersInfoData = playersInfoData.plus(makeRow(
+                        makeCell((if (iNickname == nickname) "$iNickname (You)" else iNickname).plus("<br>").plus(cardsData))
+                    ))
+                }
+            } else if (handsArray.length() == 1) {
+                for (i in 0 until playersArray.length()) {
+                    val iNickname = playersArray.getJSONObject(i).getString("nickname")
+                    val iCards = playersArray.getJSONObject(i).getInt("n_cards")
+                    if (iCards == 0) {
+                        cardsData = "Lost"
+                    } else if (iNickname == nickname) {
+                        cardsData = ""
+                        val iHand = handsArray.getJSONObject(0).getJSONArray("hand")
+                        for (i in 0 until iHand.length()) {
+                            val cardValue = iHand.getJSONObject(i).getString("value")
+                            val cardColour = iHand.getJSONObject(i).getString("colour")
+                            cardsData = cardsData.plus("<img src=\"cards/cropped/$cardValue$cardColour.png\" width=\"48\" height=\"60\"> ")
+                        }
+                        cardsData = cardsData.plus(emptyCardHTML.repeat(max.toInt() - iCards))
+                    } else {
+                        cardsData = questionCardHTML.repeat(iCards).plus(emptyCardHTML.repeat(max.toInt() - iCards))
+                    }
+                    playersInfoData = playersInfoData.plus(makeRow(
+                        makeCell((if (iNickname == nickname) "$iNickname (You)" else iNickname).plus("<br>").plus(cardsData))
+                    ))
+                }
+            } else {
+                for (i in 0 until handsArray.length()) {
+                    val iNickname = handsArray.getJSONObject(i).getString("nickname")
+                    var cardsData = ""
+                    val iHand = handsArray.getJSONObject(i).getJSONArray("hand")
+                    for (j in 0 until iHand.length()) {
+                        val cardValue = iHand.getJSONObject(j).getString("value")
+                        val cardColour = iHand.getJSONObject(j).getString("colour")
+                        cardsData = cardsData.plus("<img src=\"cards/cropped/$cardValue$cardColour.png\" width=\"48\" height=\"60\"> ")
+                    }
+                    cardsData = cardsData.plus(emptyCardHTML.repeat(max.toInt() - iHand.length()))
+                    playersInfoData = playersInfoData.plus(makeRow(
+                        makeCell((if (iNickname == nickname) "$iNickname (You)" else iNickname).plus("<br>").plus(cardsData))
+                    ))
+                }
+            }
+            playersInfo.loadDataWithBaseURL("file:///android_asset/", addOpenStyle(makeTable(playersInfoData)), "text/html", "UTF-8", null)
+
             var historyInfoData = ""
             val historyArray = gameObject.getJSONArray("history")
-            var roundEnded = false
-            var loser = ""
+
+            val roundEnded = historyArray.length() > 0 && historyArray.getJSONObject(historyArray.length() - 1).getInt("action_id") == 89
+
+            if (roundEnded) {
+                val loser = historyArray.getJSONObject(historyArray.length() - 1).getString("player")
+                val loserHTML = "<p style=\"display: flex; align-items: center;\"><img src=\"cardPlus.png\" width=\"40\" height=\"40\">"
+                    .plus(if (loser == nickname) "$loser (You)" else loser)
+                    .plus("</p>")
+                loserInfo.loadDataWithBaseURL("file:///android_asset/", loserHTML, "text/html", "UTF-8", null)
+            } else {
+                val cp = gameObject.getString("cp_nickname")
+                historyInfoData = historyInfoData.plus(makeRow(
+                    makeCell(if (cp == nickname) "$cp (You)" else cp),
+                    makeCell("...")
+                ))
+                loserInfo.loadDataWithBaseURL("file:///android_asset/", "", "text/html", "UTF-8", null)
+            }
+
             if (historyArray.length() > 0) {
                 for (i in historyArray.length() - 1 downTo 0) {
                     val iNickname = historyArray.getJSONObject(i).getString("player")
@@ -396,85 +447,27 @@ class Game : AppCompatActivity() {
                             makeCell(if (iNickname == nickname) "$iNickname (You)" else iNickname),
                             makeCell(if (iAction <= 87) sets[iAction] else "Check")
                         ))
-                    } else {
-                        roundEnded = true
-                        loser = iNickname
                     }
                 }
-            } else {
-                historyInfoData = makeRow(makeCell("No bets so far"))
             }
-            historyInfo.loadData(addStyle(makeTable(historyInfoData)), "text/html", "UTF-8")
+            historyInfo.loadDataWithBaseURL("file:///android_asset/", addStyle(makeTable(historyInfoData)), "text/html", "UTF-8", null)
 
-            val handsArray = gameObject.getJSONArray("hands")
-            var handsInfoData = ""
-            if (!roundEnded && nickname != null) {
-                handsIntro.text = "Your hand:"
-                val iHand = handsArray.getJSONObject(0).getJSONArray("hand")
-                for (i in 0 until iHand.length()) {
-                    val cardValue = iHand.getJSONObject(i).getString("value")
-                    val cardColour = iHand.getJSONObject(i).getString("colour")
-                    handsInfoData = handsInfoData
-                        .plus("<img src=\"cards/specific/$cardValue$cardColour.png\" width=\"55\" height=\"55\">")
-                }
-                println(handsInfoData)
-                handsInfo.loadDataWithBaseURL("file:///android_asset/", handsInfoData, "text/html", "UTF-8", null)
-            } else if (roundEnded) {
-                handsIntro.text = "Hands:"
-                for (i in 0 until handsArray.length()) {
-                    val iNickname = handsArray.getJSONObject(i).getString("nickname")
-                    var cardsData = ""
-                    val iHand = handsArray.getJSONObject(i).getJSONArray("hand")
-                    for (j in 0 until iHand.length()) {
-                        val cardValue = iHand.getJSONObject(j).getString("value")
-                        val cardColour = iHand.getJSONObject(j).getString("colour")
-                        cardsData = cardsData.plus("<img src=\"cards/specific/$cardValue$cardColour.png\" width=\"55\" height=\"55\">")
-                    }
-                    handsInfoData = handsInfoData.plus(makeRow(
-                        makeCell(if (iNickname == nickname) "$iNickname (You)" else iNickname),
-                        makeCell(cardsData)
-                    ))
-                }
-                handsInfo.loadDataWithBaseURL("file:///android_asset/", addStyle(makeTable(handsInfoData)), "text/html", "UTF-8", null)
+            if (gi.findViewWithTag<WebView>("playersInfo") == null) gi.addView(playersInfo)
+            if (gi.findViewWithTag<TextView>("loserInfo") == null) gi.addView(loserInfo)
+            if (gi.findViewWithTag<WebView>("historyInfo") == null) gi.addView(historyInfo)
+
+            if (gi.findViewWithTag<TextView>("statusInfo") != null) gi.removeView(statusInfo)
+            if (gi.findViewWithTag<TextView>("playersIntro") != null) gi.removeView(playersIntro)
+            if (gi.findViewWithTag<TextView>("generalInfo") != null) gi.removeView(generalInfo)
+
+            if (!roundEnded) {
+                loserInfo.visibility = View.GONE
             } else {
-                handsIntro.text = null
-                handsInfo.loadData("", "text/html", "UTF-8")
-            }
-
-            when {
-                roundEnded && loser == nickname -> {
-                    statusInfo.text = "You lost the round."
-                }
-                roundEnded && loser != nickname -> {
-                    statusInfo.text = "$loser lost the round."
-                }
-                !roundEnded && gameObject.getString("cp_nickname") == nickname -> {
-                    statusInfo.text = "Make a move:"
-                }
-                !roundEnded && gameObject.getString("cp_nickname") != nickname -> {
-                    statusInfo.text = "Current player: ${gameObject.getString("cp_nickname")}"
-                }
+                loserInfo.visibility = View.VISIBLE
             }
         }
 
         fun generateFinishedGameInfo(gameObject: JSONObject, gi: LinearLayout) {
-            if (gi.findViewWithTag<WebView>("generalInfo") == null) gi.addView(generalInfo)
-            if (gi.findViewWithTag<TextView>("playersIntro") == null) gi.addView(playersIntro)
-            if (gi.findViewWithTag<WebView>("playersInfo") == null) gi.addView(playersInfo)
-            if (gi.findViewWithTag<TextView>("statusInfo") == null) gi.addView(statusInfo)
-
-            if (gi.findViewWithTag<TextView>("historyIntro") != null) gi.removeView(historyIntro)
-            if (gi.findViewWithTag<WebView>("historyInfo") != null) gi.removeView(historyInfo)
-            if (gi.findViewWithTag<TextView>("handsIntro") != null) gi.removeView(handsIntro)
-            if (gi.findViewWithTag<TextView>("handsInfo") != null) gi.removeView(handsInfo)
-
-            val generalInfoData = makeTable(
-                makeRow(makeCell("Visibility"), makeCell(if (gameObject.getString("public") == "true") "Public" else "Private")),
-                makeRow(makeCell("Max cards"), makeCell(gameObject.getString("max_cards")))
-            )
-            generalInfo.loadData(addStyle(generalInfoData), "text/html", "UTF-8")
-
-            playersIntro.text = "Results:"
             var playersInfoData = ""
             val playersArray = gameObject.getJSONArray("players")
             for (i in 0 until playersArray.length()) {
@@ -487,7 +480,13 @@ class Game : AppCompatActivity() {
             }
             playersInfo.loadData(addStyle(makeTable(playersInfoData)), "text/html", "UTF-8")
 
-            statusInfo.text = "The game has finished."
+            if (gi.findViewWithTag<WebView>("playersInfo") == null) gi.addView(playersInfo)
+
+            if (gi.findViewWithTag<TextView>("generalInfo") != null) gi.removeView(generalInfo)
+            if (gi.findViewWithTag<TextView>("playersIntro") != null) gi.removeView(playersIntro)
+            if (gi.findViewWithTag<TextView>("loserInfo") != null) gi.removeView(loserInfo)
+            if (gi.findViewWithTag<WebView>("historyInfo") != null) gi.removeView(historyInfo)
+            if (gi.findViewWithTag<TextView>("statusInfo") != null) gi.removeView(statusInfo)
         }
 
         fun generateGameInfo(gameObject: JSONObject) {
@@ -519,10 +518,15 @@ class Game : AppCompatActivity() {
             })
         }
 
-        val buttonParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+        val singleButtonParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+        singleButtonParams.setMargins(0, 0, 0, 0)
+        val leftButtonParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+        leftButtonParams.setMargins(0, 0, adjustForDensity(5), 0)
+        val rightButtonParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+        rightButtonParams.setMargins(adjustForDensity(5), 0, 0, 0)
 
         val confirmButton = MaterialButton(this@Game)
-        confirmButton.text = "Confirm bet"
+        confirmButton.text = "Confirm"
         confirmButton.height = adjustForDensity(90)
         confirmButton.setOnClickListener {
             sendAction(sets.indexOf(findViewById<Spinner>(0).selectedItem.toString()))
@@ -569,7 +573,10 @@ class Game : AppCompatActivity() {
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             betChooser.adapter = adapter
             betChooser.id = 0
-            betChooser.setPadding(0, 0, 0, adjustForDensity(20))
+            betChooser.setBackgroundResource(R.drawable.spinner_background)
+            val sizeParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, adjustForDensity(60))
+            betChooser.layoutParams = sizeParams
+            betChooser.setPadding(0, adjustForDensity(12), 0, adjustForDensity(12))
             return(betChooser)
         }
 
@@ -605,19 +612,18 @@ class Game : AppCompatActivity() {
                 if (gameObject.getJSONArray("history").length() == 0) {
                     ll.addView(makeBetChooser(-1))
                     confirmOrCheck.addView(confirmButton)
-                    buttonParams.setMargins(0, 0, 0, 0)
+                    confirmButton.layoutParams = singleButtonParams
                 } else if (history.getJSONObject(history.length() - 1).getInt("action_id") in 0..86) {
                     val lastAction = history.getJSONObject(history.length() - 1).getInt("action_id")
                     ll.addView(makeBetChooser(lastAction))
                     confirmOrCheck.addView(confirmButton)
                     confirmOrCheck.addView(checkButton)
-                    buttonParams.setMargins(adjustForDensity(5), 0, adjustForDensity(5), 0)
+                    confirmButton.layoutParams = leftButtonParams
+                    checkButton.layoutParams = rightButtonParams
                 } else {
                     confirmOrCheck.addView(checkButton)
-                    buttonParams.setMargins(0, 0, 0, 0)
+                    checkButton.layoutParams = singleButtonParams
                 }
-                confirmButton.layoutParams = buttonParams
-                checkButton.layoutParams = buttonParams
                 ll.addView(confirmOrCheck)
             }
 

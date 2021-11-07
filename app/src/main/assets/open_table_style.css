@@ -1,0 +1,10 @@
+td{
+  line-height: 1.2;
+  text-align: center;
+  word-break:break-all;
+}
+
+table {
+  background-color: #F5F5F5;
+  border-collapse: collapse;
+}
