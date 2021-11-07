@@ -331,8 +331,6 @@ class Game : AppCompatActivity() {
         historyInfo.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
         historyInfo.isVerticalScrollBarEnabled = false
         historyInfo.tag = "historyInfo"
-        val statusInfo = TextView(this@Game)
-        statusInfo.tag = "statusInfo"
         val loserInfo = WebView(this@Game)
         loserInfo.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
         loserInfo.isVerticalScrollBarEnabled = false
@@ -356,12 +354,9 @@ class Game : AppCompatActivity() {
             playersInfoData = addStyle(makeTable(playersInfoData))
             playersInfo.loadData(playersInfoData, "text/html", "UTF-8")
 
-            statusInfo.text = "The game has not started yet."
-
             if (gi.findViewWithTag<WebView>("generalInfo") == null) gi.addView(generalInfo)
             if (gi.findViewWithTag<TextView>("playersIntro") == null) gi.addView(playersIntro)
             if (gi.findViewWithTag<WebView>("playersInfo") == null) gi.addView(playersInfo)
-            if (gi.findViewWithTag<TextView>("statusInfo") == null) gi.addView(statusInfo)
         }
 
         fun generateRunningGameInfo(gameObject: JSONObject, gi: LinearLayout) {
@@ -461,7 +456,6 @@ class Game : AppCompatActivity() {
             if (gi.findViewWithTag<TextView>("loserInfo") == null) gi.addView(loserInfo)
             if (gi.findViewWithTag<WebView>("historyInfo") == null) gi.addView(historyInfo)
 
-            if (gi.findViewWithTag<TextView>("statusInfo") != null) gi.removeView(statusInfo)
             if (gi.findViewWithTag<TextView>("playersIntro") != null) gi.removeView(playersIntro)
             if (gi.findViewWithTag<TextView>("generalInfo") != null) gi.removeView(generalInfo)
 
@@ -491,7 +485,6 @@ class Game : AppCompatActivity() {
             if (gi.findViewWithTag<TextView>("playersIntro") != null) gi.removeView(playersIntro)
             if (gi.findViewWithTag<TextView>("loserInfo") != null) gi.removeView(loserInfo)
             if (gi.findViewWithTag<WebView>("historyInfo") != null) gi.removeView(historyInfo)
-            if (gi.findViewWithTag<TextView>("statusInfo") != null) gi.removeView(statusInfo)
         }
 
         fun generateGameInfo(gameObject: JSONObject) {
