@@ -63,10 +63,28 @@ class JoiningWithoutUuid : AppCompatActivity() {
 
         findViewById<Button>(R.id.join_without_uuid_observe_button).setOnClickListener {
             val gameUuid = findViewById<EditText>(R.id.join_without_uuid_uuid).text.toString()
-            val intent = Intent(this, Game::class.java).apply {
-                putExtra("game_uuid", gameUuid)
-            }
-            startActivity(intent)
+            val mHandler = Handler(Looper.getMainLooper())
+            val client = OkHttpClient()
+            val request = Request.Builder()
+                .url("https://n4p6oovxsg.execute-api.eu-west-2.amazonaws.com/games/$gameUuid")
+                .build()
+            client.newCall(request).enqueue(object : Callback {
+                override fun onFailure(call: Call, e: IOException) {
+                    e.printStackTrace()
+                }
+                override fun onResponse(call: Call, response: Response) {
+                    response.use {
+                        if (!response.isSuccessful) {
+                            showEngineError(R.id.activity_joining_without_uuid, response)
+                        } else {
+                            val intent = Intent(this@JoiningWithoutUuid, Game::class.java).apply {
+                                putExtra("game_uuid", gameUuid)
+                            }
+                            mHandler.post{startActivity(intent)}
+                        }
+                    }
+                }
+            })
         }
     }
 }
