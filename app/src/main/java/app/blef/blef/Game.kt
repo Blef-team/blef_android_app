@@ -666,7 +666,7 @@ class Game : AppCompatActivity() {
             .setCancelable(false)
             .setPositiveButton(
                 "Yes"
-            ) { dialog, id -> super.onBackPressed() }
+            ) { dialog, id -> startActivity(Intent(this@Game, MainActivity::class.java)) }
             .setNegativeButton("No", null)
             .show()
     }
