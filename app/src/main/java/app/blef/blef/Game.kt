@@ -577,7 +577,7 @@ class Game : AppCompatActivity() {
         fun makeBetChooser(lastActionId: Int): Spinner {
             val betChooser = Spinner(this@Game)
             betChooser.prompt = "Choose a bet..."
-            val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, sets.copyOfRange(lastActionId + 1, 87))
+            val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, sets.copyOfRange(lastActionId + 1, 88))
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             betChooser.adapter = adapter
             betChooser.id = 0
