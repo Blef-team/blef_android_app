@@ -146,9 +146,10 @@ class Game : AppCompatActivity() {
         val mHandler = Handler(Looper.getMainLooper())
         val client = OkHttpClient()
         val baseUrl = "https://n4p6oovxsg.execute-api.eu-west-2.amazonaws.com/games"
+        val cardSizeHTML = "width=\"40\" height=\"50\""
 
-        val emptyCardHTML = "<img src=\"cardEmpty.png\" width=\"48\" height=\"60\"> "
-        val questionCardHTML = "<img src=\"cardQuestion.png\" width=\"48\" height=\"60\"> "
+        val emptyCardHTML = "<img src=\"cardEmpty.png\" $cardSizeHTML> "
+        val questionCardHTML = "<img src=\"cardQuestion.png\" $cardSizeHTML> "
 
         fun updateGame() {
             val queryUrl = baseUrl + if (playerUuid != null)  "/$gameUuid?player_uuid=$playerUuid" else "/$gameUuid"
@@ -398,7 +399,7 @@ class Game : AppCompatActivity() {
                             )
                         }
                         var sortedList = cardsList.sortedWith(compareBy({ -it.value }, { -it.suit }))
-                        for (card in sortedList) cardsData = cardsData.plus("<img src=\"cards/cropped/${card.value}${card.suit}.png\" width=\"48\" height=\"60\"> ")
+                        for (card in sortedList) cardsData = cardsData.plus("<img src=\"cards/cropped/${card.value}${card.suit}.png\" $cardSizeHTML> ")
                         cardsData = cardsData.plus(emptyCardHTML.repeat(max.toInt() - iCards))
                     } else {
                         cardsData = questionCardHTML.repeat(iCards).plus(emptyCardHTML.repeat(max.toInt() - iCards))
@@ -410,7 +411,7 @@ class Game : AppCompatActivity() {
             } else {
                 for (i in 0 until handsArray.length()) {
                     val iNickname = handsArray.getJSONObject(i).getString("nickname")
-                    var cardsData = ""
+                    cardsData = ""
                     val iHand = handsArray.getJSONObject(i).getJSONArray("hand")
                     val cardsList = ArrayList<Card>()
                     for (j in 0 until iHand.length()) {
@@ -418,8 +419,8 @@ class Game : AppCompatActivity() {
                             Card(iHand.getJSONObject(j).getInt("value"), iHand.getJSONObject(j).getInt("colour"))
                         )
                     }
-                    var sortedList = cardsList.sortedWith(compareBy({ -it.value }, { -it.suit }))
-                    for (card in sortedList) cardsData = cardsData.plus("<img src=\"cards/cropped/${card.value}${card.suit}.png\" width=\"48\" height=\"60\"> ")
+                    val sortedList = cardsList.sortedWith(compareBy({ -it.value }, { -it.suit }))
+                    for (card in sortedList) cardsData = cardsData.plus("<img src=\"cards/cropped/${card.value}${card.suit}.png\" $cardSizeHTML> ")
                     cardsData = cardsData.plus(emptyCardHTML.repeat(max.toInt() - iHand.length()))
                     playersInfoData = playersInfoData.plus(makeRow(
                         makeCell((formatNickname(iNickname, nickname)).plus("<br>").plus(cardsData))
@@ -527,42 +528,40 @@ class Game : AppCompatActivity() {
         }
 
         val singleButtonParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-        singleButtonParams.setMargins(0, 0, 0, 0)
+        singleButtonParams.setMargins(0, adjustForDensity(6), 0, adjustForDensity(6))
         val leftButtonParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-        leftButtonParams.setMargins(0, 0, adjustForDensity(5), 0)
+        leftButtonParams.setMargins(0, adjustForDensity(6), adjustForDensity(6), adjustForDensity(6))
         val rightButtonParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-        rightButtonParams.setMargins(adjustForDensity(5), 0, 0, 0)
+        rightButtonParams.setMargins(adjustForDensity(6), adjustForDensity(6), 0, adjustForDensity(6))
+        val verticalButtonParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+        verticalButtonParams.setMargins(0, 0, 0, adjustForDensity(6))
 
         val confirmButton = MaterialButton(this@Game)
         confirmButton.text = "Confirm"
-        confirmButton.height = adjustForDensity(90)
+        confirmButton.height = adjustForDensity(80)
         confirmButton.setOnClickListener {
             sendAction(sets.indexOf(findViewById<Spinner>(0).selectedItem.toString()))
         }
 
         val checkButton = MaterialButton(this@Game)
         checkButton.text = "Check"
-        checkButton.height = adjustForDensity(90)
+        checkButton.height = adjustForDensity(80)
         checkButton.setOnClickListener {
             sendAction(88)
         }
 
-        val updateButton = MaterialButton(this@Game)
-        updateButton.tag = "update"
-        updateButton.text = "Go to current round"
-        updateButton.height = adjustForDensity(90)
-        updateButton.setOnClickListener{hardUpdateGame()}
-
         val startButton = MaterialButton(this@Game)
         startButton.tag = "start"
         startButton.text = "Start game"
-        startButton.height = adjustForDensity(60)
+        startButton.height = adjustForDensity(80)
+        startButton.layoutParams = verticalButtonParams
         startButton.setOnClickListener{start()}
 
         val inviteButton = MaterialButton(this@Game)
         inviteButton.tag = "inviteButton"
         inviteButton.text = "Send invite"
-        inviteButton.height = adjustForDensity(60)
+        inviteButton.height = adjustForDensity(80)
+        inviteButton.layoutParams = verticalButtonParams
         inviteButton.setOnClickListener{
             val link = "Join me for a game of Blef: https://blef.app/?link=http://blef.app/$gameUuid"
             val intent = Intent(Intent.ACTION_SEND)
@@ -572,7 +571,8 @@ class Game : AppCompatActivity() {
         }
 
         val publicPrivateButton = MaterialButton(this@Game)
-        publicPrivateButton.height = adjustForDensity(60)
+        publicPrivateButton.height = adjustForDensity(80)
+        publicPrivateButton.layoutParams = verticalButtonParams
 
         fun makeBetChooser(lastActionId: Int): Spinner {
             val betChooser = Spinner(this@Game)
@@ -582,15 +582,22 @@ class Game : AppCompatActivity() {
             betChooser.adapter = adapter
             betChooser.id = 0
             betChooser.setBackgroundResource(R.drawable.spinner_background)
-            val sizeParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, adjustForDensity(60))
+            val sizeParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, adjustForDensity(70))
+            sizeParams.setMargins(0, adjustForDensity(6), 0, 0)
             betChooser.layoutParams = sizeParams
-            betChooser.setPadding(0, adjustForDensity(12), 0, adjustForDensity(12))
             return(betChooser)
         }
 
         val confirmOrCheck = LinearLayout(this@Game)
         confirmOrCheck.orientation = LinearLayout.HORIZONTAL
         confirmOrCheck.isBaselineAligned = false
+
+        val updateButton = MaterialButton(this@Game)
+        updateButton.tag = "update"
+        updateButton.text = "Go to current round"
+        updateButton.height = adjustForDensity(80)
+        updateButton.layoutParams = singleButtonParams
+        updateButton.setOnClickListener{hardUpdateGame()}
 
         fun generateGameControls(gameObject: JSONObject) {
             val ll = findViewById<LinearLayout>(R.id.controlPanel)
