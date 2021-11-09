@@ -316,7 +316,7 @@ class Game : AppCompatActivity() {
             return("<style>".plus(assets.open("open_table_style.css").bufferedReader().lines().collect(Collectors.joining())).plus("</style>").plus(s))
         }
         fun formatNickname(raw: String, own: String?): String {
-            val formatted = (if (raw == own) "$raw (You)" else raw).replace("_", " ")
+            val formatted = (if (raw == own) "<b>$raw</b>" else raw).replace("_", " ")
             return(formatted)
         }
 
