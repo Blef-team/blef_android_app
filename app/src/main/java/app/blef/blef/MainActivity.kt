@@ -3,12 +3,15 @@
 
 package app.blef.blef
 
+import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.view.View
 import android.widget.*
+import androidx.appcompat.app.AlertDialog
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.MutableLiveData
 import okhttp3.*
@@ -35,7 +38,62 @@ class MainActivity : AppCompatActivity() {
         pg.addView(headerText)
         pg.addView(playerFilter)
 
+        val sharedPref = this.getSharedPreferences("app.blef.blef.MAIN", Context.MODE_PRIVATE)
+        println()
+        val lastGameUuid = sharedPref.getString("game_uuid", "")
+        val continueButton = findViewById<Button>(R.id.continueGame)
+
         val client = OkHttpClient()
+
+        if (lastGameUuid != "") {
+            val lastGameRequest = Request.Builder()
+                .url("https://n4p6oovxsg.execute-api.eu-west-2.amazonaws.com/games/$lastGameUuid")
+                .build()
+
+            client.newCall(lastGameRequest).enqueue(object : Callback {
+                override fun onFailure(call: Call, e: IOException) {
+                    e.printStackTrace()
+                }
+
+                override fun onResponse(call: Call, response: Response) {
+                    response.use {
+                        if (!response.isSuccessful) {
+                            with (sharedPref.edit()) {
+                                putString("game_uuid", "")
+                                putString("player_uuid", "")
+                                putString("preferred_nickname", "")
+                                putString("nickname", "")
+                                apply()
+                            }
+                            mHandler.post{ continueButton.visibility = View.GONE }
+                        } else {
+                            val newMessage = response.body!!.string()
+                            if (JSONObject(newMessage).getString("status") == "Finished") {
+                                with (sharedPref.edit()) {
+                                    putString("game_uuid", "")
+                                    putString("player_uuid", "")
+                                    putString("preferred_nickname", "")
+                                    putString("nickname", "")
+                                    apply()
+                                }
+                                mHandler.post{ continueButton.visibility = View.GONE }
+                            } else {
+                                val continueIntent = Intent(this@MainActivity, Game::class.java).apply {
+                                    putExtra("game_uuid", sharedPref.getString("game_uuid", ""))
+                                    putExtra("player_uuid", sharedPref.getString("player_uuid", ""))
+                                    putExtra("nickname", sharedPref.getString("nickname", ""))
+                                }
+                                mHandler.post{
+                                    continueButton.visibility = View.VISIBLE
+                                    continueButton.setOnClickListener {startActivity(continueIntent)}
+                                }
+                            }
+                        }
+                    }
+                }
+            })
+        }
+
         val request = Request.Builder()
             .url("https://n4p6oovxsg.execute-api.eu-west-2.amazonaws.com/games")
             .build()
@@ -67,11 +125,6 @@ class MainActivity : AppCompatActivity() {
 
         findViewById<Button>(R.id.create).setOnClickListener {
             val intent = Intent(this, Creating::class.java)
-            startActivity(intent)
-        }
-
-        findViewById<Button>(R.id.join).setOnClickListener {
-            val intent = Intent(this, JoiningWithoutUuid::class.java)
             startActivity(intent)
         }
 

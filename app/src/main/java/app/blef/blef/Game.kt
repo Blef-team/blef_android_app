@@ -3,6 +3,7 @@
 
 package app.blef.blef
 
+import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
@@ -132,6 +133,15 @@ class Game : AppCompatActivity() {
         val gameUuid = intent.getStringExtra("game_uuid").toString().lowercase()
         val playerUuid = intent.getStringExtra("player_uuid")
         val nickname = intent.getStringExtra("nickname")
+
+        val sharedPref = this.getSharedPreferences("app.blef.blef.MAIN", Context.MODE_PRIVATE)
+        with (sharedPref.edit()) {
+            putString("game_uuid", gameUuid)
+            putString("player_uuid", playerUuid)
+            putString("preferred_nickname", nickname)
+            putString("nickname", nickname)
+            apply()
+        }
 
         class ProperMutableLiveData<T> : MutableLiveData<T>() {
             override fun setValue(value: T?) {
@@ -668,6 +678,16 @@ class Game : AppCompatActivity() {
             val gameObject = JSONObject(message.value.toString())
             generateGameInfo(gameObject)
             generateGameControls(gameObject)
+
+            if (gameObject.getString("status") == "Finished") {
+                with (sharedPref.edit()) {
+                    putString("game_uuid", "")
+                    putString("player_uuid", "")
+                    putString("preferred_nickname", "")
+                    putString("nickname", "")
+                    apply()
+                }
+            }
         })
 
         hardUpdateGame()
@@ -678,18 +698,11 @@ class Game : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        AlertDialog.Builder(this)
-            .setMessage("Leave the game?")
-            .setCancelable(false)
-            .setPositiveButton(
-                "Yes"
-            ) { dialog, id -> startActivity(Intent(this@Game, MainActivity::class.java)) }
-            .setNegativeButton("No", null)
-            .show()
+        startActivity(Intent(this@Game, MainActivity::class.java))
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        onBackPressed()
+        startActivity(Intent(this@Game, MainActivity::class.java))
         return(true)
     }
 }

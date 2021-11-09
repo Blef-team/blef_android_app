@@ -30,20 +30,16 @@ class JoiningWithUuid : AppCompatActivity() {
             ?: intent.getStringExtra("game_uuid")
 
         val uuidText = findViewById<TextView>(R.id.join_with_uuid_uuid_text)
-        uuidText.text = "You are joining game $gameUuid"
+        uuidText.text = "Joining game $gameUuid"
 
         val nicknameEdittext = findViewById<EditText>(R.id.join_with_uuid_nickname)
-        nicknameEdittext.setText(sharedPref.getString("nickname", ""))
+        nicknameEdittext.setText(sharedPref.getString("preferred_nickname", ""))
         nicknameEdittext.requestFocus()
         val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.showSoftInput(nicknameEdittext, 0)
 
         findViewById<Button>(R.id.join_with_uuid_join_button).setOnClickListener {
             val rawNickname = nicknameEdittext.text.toString()
-            with (sharedPref.edit()) {
-                putString("nickname", rawNickname)
-                apply()
-            }
             val nickname = rawNickname.replace(" ", "_")
             val mHandler = Handler(Looper.getMainLooper())
             val client = OkHttpClient()

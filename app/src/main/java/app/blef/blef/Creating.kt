@@ -25,17 +25,13 @@ class Creating : AppCompatActivity() {
         val sharedPref = this.getSharedPreferences("app.blef.blef.MAIN", Context.MODE_PRIVATE)
 
         val nicknameEdittext = findViewById<EditText>(R.id.create_nickname)
-        nicknameEdittext.setText(sharedPref.getString("nickname", ""))
+        nicknameEdittext.setText(sharedPref.getString("preferred_nickname", ""))
         nicknameEdittext.requestFocus()
         val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.showSoftInput(nicknameEdittext, 0)
 
         findViewById<Button>(R.id.create_create_button).setOnClickListener {
             val rawNickname = nicknameEdittext.text.toString()
-            with (sharedPref.edit()) {
-                putString("nickname", rawNickname)
-                apply()
-            }
             val nickname = rawNickname.replace(" ", "_")
 
             val mHandler = Handler(Looper.getMainLooper())

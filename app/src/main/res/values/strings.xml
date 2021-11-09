@@ -7,7 +7,7 @@
     <string name="nickname_hint">Nickname...</string>
     <string name="uuid_hint">00000000-0000-0000-0000-000000000000</string>
     <string name="create">Create</string>
-    <string name="join">Join</string>
+    <string name="continueGame">Continue</string>
     <string name="join_via_invite_link">Join a Blef game</string>
     <string name="no_games">There are no public games.</string>
     <string name="players">Players</string>
