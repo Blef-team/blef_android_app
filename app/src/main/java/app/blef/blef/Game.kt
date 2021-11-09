@@ -4,9 +4,11 @@
 package app.blef.blef
 
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.view.Gravity
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
@@ -17,13 +19,14 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.MutableLiveData
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.snackbar.Snackbar
+import com.skydoves.powerspinner.*
 import okhttp3.*
 import org.json.JSONObject
 import java.io.IOException
 import java.util.stream.Collectors
 import kotlin.concurrent.fixedRateTimer
 
-val sets = arrayOf(
+val sets = listOf(
     "High card, 9",
     "High card, 10",
     "High card, J",
@@ -540,7 +543,7 @@ class Game : AppCompatActivity() {
         confirmButton.text = "Confirm"
         confirmButton.height = adjustForDensity(80)
         confirmButton.setOnClickListener {
-            sendAction(sets.indexOf(findViewById<Spinner>(0).selectedItem.toString()))
+            sendAction(sets.indexOf(findViewById<PowerSpinnerView>(0).text))
         }
 
         val checkButton = MaterialButton(this@Game)
@@ -574,13 +577,27 @@ class Game : AppCompatActivity() {
         publicPrivateButton.height = adjustForDensity(80)
         publicPrivateButton.layoutParams = verticalButtonParams
 
-        fun makeBetChooser(lastActionId: Int): Spinner {
-            val betChooser = Spinner(this@Game)
-            betChooser.prompt = "Choose a bet..."
-            val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, sets.copyOfRange(lastActionId + 1, 88))
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            betChooser.adapter = adapter
+        fun makeBetChooser(lastActionId: Int): PowerSpinnerView {
+            val betChooser = createPowerSpinnerView(this) {
+                setArrowTint(Color.parseColor("#000000"))
+                setArrowPadding(12)
+                setArrowAnimate(false)
+                setArrowGravity(SpinnerGravity.END)
+                setSpinnerPopupHeight((200 + resources.displayMetrics.heightPixels * 0.3).toInt())
+                setSpinnerPopupAnimation(SpinnerAnimation.DROPDOWN)
+                setSpinnerPopupAnimationStyle(android.R.style.Animation)
+                setSpinnerPopupBackgroundColor(Color.parseColor("#ffffff"))
+                setLifecycleOwner(this@Game)
+            }
+            betChooser.apply {
+                setSpinnerAdapter(DefaultSpinnerAdapter(betChooser))
+                setItems(sets.subList(lastActionId + 1, 88))
+                selectItemByIndex(0)
+                lifecycleOwner = this@Game
+            }
             betChooser.id = 0
+            betChooser.setPadding(adjustForDensity(12), adjustForDensity(8), adjustForDensity(12), adjustForDensity(8))
+            betChooser.gravity = Gravity.CENTER_VERTICAL
             betChooser.setBackgroundResource(R.drawable.spinner_background)
             val sizeParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, adjustForDensity(70))
             sizeParams.setMargins(0, adjustForDensity(6), 0, 0)
