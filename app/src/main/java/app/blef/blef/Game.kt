@@ -15,13 +15,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebView
 import android.widget.*
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.MutableLiveData
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.snackbar.Snackbar
 import com.skydoves.powerspinner.*
 import okhttp3.*
+import org.json.JSONArray
 import org.json.JSONObject
 import java.io.IOException
 import java.util.stream.Collectors
@@ -161,8 +161,8 @@ class Game : AppCompatActivity() {
         val baseUrl = "https://n4p6oovxsg.execute-api.eu-west-2.amazonaws.com/games"
         val cardSizeHTML = "width=\"40\" height=\"50\""
 
-        val emptyCardHTML = "<img src=\"cardEmpty.png\" $cardSizeHTML> "
-        val questionCardHTML = "<img src=\"cardQuestion.png\" $cardSizeHTML> "
+        val emptyCardHTML = "<img src=\"cardEmpty.png\" $cardSizeHTML>"
+        val questionCardHTML = "<img src=\"cardQuestion.png\" $cardSizeHTML>"
 
         fun updateGame() {
             val queryUrl = baseUrl + if (playerUuid != null)  "/$gameUuid?player_uuid=$playerUuid" else "/$gameUuid"
@@ -317,13 +317,23 @@ class Game : AppCompatActivity() {
         fun makeTable(vararg ss: String): String {
             var out = "<table><tbody>"
             for (s in ss) out += s
-            return(out.plus("</table></tbody>"))
+            return(out.plus("</tbody></table>"))
+        }
+        fun makeHalfTable(vararg ss: String): String {
+            var out = "<table class=\"halfTable\"><tbody>"
+            for (s in ss) out += s
+            return(out.plus("</tbody></table>"))
+        }
+        fun makeFullTable(vararg ss: String): String {
+            var out = "<table class=\"fullTable\"><tbody>"
+            for (s in ss) out += s
+            return(out.plus("</tbody></table>"))
         }
         fun addStyle(s: String): String {
             return("<style>".plus(assets.open("table_style.css").bufferedReader().lines().collect(Collectors.joining())).plus("</style>").plus(s))
         }
         fun addOpenStyle(s: String): String {
-            return("<style>".plus(assets.open("open_table_style.css").bufferedReader().lines().collect(Collectors.joining())).plus("</style>").plus(s))
+            return("<style>".plus(assets.open("open_style.css").bufferedReader().lines().collect(Collectors.joining())).plus("</style>").plus(s))
         }
         fun formatNickname(raw: String, own: String?): String {
             val formatted = (if (raw == own) "<b>$raw</b>" else raw).replace("_", " ")
@@ -340,7 +350,7 @@ class Game : AppCompatActivity() {
         playersIntro.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
         playersIntro.isVerticalScrollBarEnabled = false
         val playersInfo = WebView(this@Game)
-        playersInfo.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+        playersInfo.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
         playersInfo.isVerticalScrollBarEnabled = false
         playersInfo.tag = "playersInfo"
         val historyIntro = TextView(this@Game)
@@ -377,70 +387,96 @@ class Game : AppCompatActivity() {
             if (gi.findViewWithTag<WebView>("playersInfo") == null) gi.addView(playersInfo)
         }
 
+        fun showClosedHand(handSize: Int, max: Int): String {
+            var cardsData = ""
+            for (j in 0 until max) {
+                if (j < handSize) {
+                    cardsData = cardsData.plus(questionCardHTML)
+                } else {
+                    cardsData = cardsData.plus(emptyCardHTML)
+                }
+            }
+            return(cardsData)
+        }
+
+        fun showOpenHand(hand: JSONArray, max: Int): String {
+            var cardsData = ""
+            val cardsList = ArrayList<Card>()
+            for (j in 0 until hand.length()) {
+                cardsList.add(Card(hand.getJSONObject(j).getInt("value"), hand.getJSONObject(j).getInt("colour")))
+            }
+            val sortedList = cardsList.sortedWith(compareBy({ -it.value }, { -it.suit }))
+            for (j in 0 until max) {
+                if (j < sortedList.size) {
+                    cardsData = cardsData.plus("<img src=\"cards/cropped/${sortedList[j].value}${sortedList[j].suit}.png\" $cardSizeHTML>")
+                } else {
+                    cardsData = cardsData.plus(emptyCardHTML)
+                }
+            }
+            return(cardsData)
+        }
+
         fun generateRunningGameInfo(gameObject: JSONObject, gi: LinearLayout) {
-            val max = gameObject.getString("max_cards")
+            val max = gameObject.getString("max_cards").toInt()
             var playersInfoData = ""
             val playersArray = gameObject.getJSONArray("players")
+            val nPlayers = playersArray.length()
             val handsArray = gameObject.getJSONArray("hands")
 
-            var cardsData = ""
-
             if (handsArray.length() == 0) {
-                for (i in 0 until playersArray.length()) {
+                for (i in 0 until nPlayers) {
                     val iNickname = playersArray.getJSONObject(i).getString("nickname")
                     val iCards = playersArray.getJSONObject(i).getInt("n_cards")
-                    cardsData = if (iCards == 0) "Lost" else questionCardHTML.repeat(iCards).plus(
-                        emptyCardHTML.repeat(max.toInt() - iCards)
-                    )
-                    playersInfoData = playersInfoData.plus(makeRow(
-                        makeCell((formatNickname(iNickname, nickname)).plus("<br>").plus(cardsData))
-                    ))
+                    val cardsData = showClosedHand(iCards, max)
+                    if (nPlayers.mod(2) == 1 && i == nPlayers - 1) {
+                        playersInfoData = playersInfoData.plus(makeFullTable(makeCell(
+                            (formatNickname(iNickname, nickname)).plus("<br>").plus(cardsData)
+                        )))
+                    } else {
+                        playersInfoData = playersInfoData.plus(makeHalfTable(makeCell(
+                            (formatNickname(iNickname, nickname)).plus("<br>").plus(cardsData)
+                        )))
+                        if (i.mod(2) == 1) playersInfoData = playersInfoData.plus("<br>")
+                    }
                 }
             } else if (handsArray.length() == 1) {
                 for (i in 0 until playersArray.length()) {
                     val iNickname = playersArray.getJSONObject(i).getString("nickname")
                     val iCards = playersArray.getJSONObject(i).getInt("n_cards")
-                    if (iCards == 0) {
-                        cardsData = "Lost"
-                    } else if (iNickname == nickname) {
-                        cardsData = ""
-                        val iHand = handsArray.getJSONObject(0).getJSONArray("hand")
-                        val cardsList = ArrayList<Card>()
-                        for (j in 0 until iHand.length()) {
-                            cardsList.add(
-                                Card(iHand.getJSONObject(j).getInt("value"), iHand.getJSONObject(j).getInt("colour"))
-                            )
+                    val cardsData = when {
+                            iCards == 0 -> "Lost"
+                            iNickname == nickname -> showOpenHand(handsArray.getJSONObject(0).getJSONArray("hand"), max)
+                            else -> showClosedHand(iCards, max)
                         }
-                        var sortedList = cardsList.sortedWith(compareBy({ -it.value }, { -it.suit }))
-                        for (card in sortedList) cardsData = cardsData.plus("<img src=\"cards/cropped/${card.value}${card.suit}.png\" $cardSizeHTML> ")
-                        cardsData = cardsData.plus(emptyCardHTML.repeat(max.toInt() - iCards))
+                    if (nPlayers.mod(2) == 1 && i == nPlayers - 1) {
+                        playersInfoData = playersInfoData.plus(makeFullTable(makeCell(
+                            (formatNickname(iNickname, nickname)).plus("<br>").plus(cardsData)
+                        )))
                     } else {
-                        cardsData = questionCardHTML.repeat(iCards).plus(emptyCardHTML.repeat(max.toInt() - iCards))
+                        playersInfoData = playersInfoData.plus(makeHalfTable(makeCell(
+                            (formatNickname(iNickname, nickname)).plus("<br>").plus(cardsData)
+                        )))
+                        if (i.mod(2) == 1) playersInfoData = playersInfoData.plus("<br>")
                     }
-                    playersInfoData = playersInfoData.plus(makeRow(
-                        makeCell((formatNickname(iNickname, nickname)).plus("<br>").plus(cardsData))
-                    ))
                 }
             } else {
                 for (i in 0 until handsArray.length()) {
-                    val iNickname = handsArray.getJSONObject(i).getString("nickname")
-                    cardsData = ""
-                    val iHand = handsArray.getJSONObject(i).getJSONArray("hand")
-                    val cardsList = ArrayList<Card>()
-                    for (j in 0 until iHand.length()) {
-                        cardsList.add(
-                            Card(iHand.getJSONObject(j).getInt("value"), iHand.getJSONObject(j).getInt("colour"))
-                        )
+                    val iNickname = playersArray.getJSONObject(i).getString("nickname")
+                    val cardsData = showOpenHand(handsArray.getJSONObject(i).getJSONArray("hand"), max)
+                    if (nPlayers.mod(2) == 1 && i == nPlayers - 1) {
+                        playersInfoData = playersInfoData.plus(makeFullTable(makeCell(
+                            (formatNickname(iNickname, nickname)).plus("<br>").plus(cardsData)
+                        )))
+                    } else {
+                        playersInfoData = playersInfoData.plus(makeHalfTable(makeCell(
+                            (formatNickname(iNickname, nickname)).plus("<br>").plus(cardsData)
+                        )))
+                        if (i.mod(2) == 1) playersInfoData = playersInfoData.plus("<br>")
                     }
-                    val sortedList = cardsList.sortedWith(compareBy({ -it.value }, { -it.suit }))
-                    for (card in sortedList) cardsData = cardsData.plus("<img src=\"cards/cropped/${card.value}${card.suit}.png\" $cardSizeHTML> ")
-                    cardsData = cardsData.plus(emptyCardHTML.repeat(max.toInt() - iHand.length()))
-                    playersInfoData = playersInfoData.plus(makeRow(
-                        makeCell((formatNickname(iNickname, nickname)).plus("<br>").plus(cardsData))
-                    ))
                 }
             }
-            playersInfo.loadDataWithBaseURL("file:///android_asset/", addOpenStyle(makeTable(playersInfoData)), "text/html", "UTF-8", null)
+            println(addOpenStyle(playersInfoData))
+            playersInfo.loadDataWithBaseURL("file:///android_asset/", addOpenStyle(playersInfoData), "text/html", "UTF-8", null)
 
             var historyInfoData = ""
             val historyArray = gameObject.getJSONArray("history")
