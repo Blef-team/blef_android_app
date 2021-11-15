@@ -309,6 +309,12 @@ class Game : AppCompatActivity() {
         fun makeCell(s: String): String {
             return("<td>".plus(s).plus("</td>"))
         }
+        fun makeLeftCell(s: String): String {
+            return("<td class=\"leftCell\">".plus(s).plus("</td>"))
+        }
+        fun makeRightCell(s: String): String {
+            return("<td class=\"rightCell\">".plus(s).plus("</td>"))
+        }
         fun makeRow(vararg ss: String): String {
             var out = "<tr>"
             for (s in ss) out += s
@@ -316,6 +322,11 @@ class Game : AppCompatActivity() {
         }
         fun makeTable(vararg ss: String): String {
             var out = "<table><tbody>"
+            for (s in ss) out += s
+            return(out.plus("</tbody></table>"))
+        }
+        fun makeInfoTable(vararg ss: String): String {
+            var out = "<table class=\"infoTable\"><tbody>"
             for (s in ss) out += s
             return(out.plus("</tbody></table>"))
         }
@@ -475,7 +486,6 @@ class Game : AppCompatActivity() {
                     }
                 }
             }
-            println(addOpenStyle(playersInfoData))
             playersInfo.loadDataWithBaseURL("file:///android_asset/", addOpenStyle(playersInfoData), "text/html", "UTF-8", null)
 
             var historyInfoData = ""
@@ -485,15 +495,15 @@ class Game : AppCompatActivity() {
 
             if (roundEnded) {
                 val loser = historyArray.getJSONObject(historyArray.length() - 1).getString("player")
-                val loserHTML = "<p style=\"display: flex; align-items: center;\"><img src=\"cardPlus.png\" width=\"40\" height=\"40\">"
+                val loserHTML = "<p style=\"display: flex; align-items: center; justify-content: center;\"><img src=\"cardPlus.png\" width=\"40\" height=\"40\">"
                     .plus(formatNickname(loser, nickname))
                     .plus("</p>")
                 loserInfo.loadDataWithBaseURL("file:///android_asset/", loserHTML, "text/html", "UTF-8", null)
             } else {
                 val cp = gameObject.getString("cp_nickname")
                 historyInfoData = historyInfoData.plus(makeRow(
-                    makeCell(formatNickname(cp, nickname)),
-                    makeCell("...")
+                    makeLeftCell(formatNickname(cp, nickname)),
+                    makeRightCell("...")
                 ))
                 loserInfo.loadDataWithBaseURL("file:///android_asset/", "", "text/html", "UTF-8", null)
             }
@@ -504,13 +514,13 @@ class Game : AppCompatActivity() {
                     val iAction = historyArray.getJSONObject(i).getInt("action_id")
                     if (iAction <= 88) {
                         historyInfoData = historyInfoData.plus(makeRow(
-                            makeCell(formatNickname(iNickname, nickname)),
-                            makeCell(if (iAction <= 87) sets[iAction] else "Check")
+                            makeLeftCell(formatNickname(iNickname, nickname)),
+                            makeRightCell(if (iAction <= 87) sets[iAction] else "Check")
                         ))
                     }
                 }
             }
-            historyInfo.loadDataWithBaseURL("file:///android_asset/", addStyle(makeTable(historyInfoData)), "text/html", "UTF-8", null)
+            historyInfo.loadDataWithBaseURL("file:///android_asset/", addOpenStyle(makeInfoTable(historyInfoData)), "text/html", "UTF-8", null)
 
             if (gi.findViewWithTag<WebView>("playersInfo") == null) gi.addView(playersInfo)
             if (gi.findViewWithTag<TextView>("loserInfo") == null) gi.addView(loserInfo)
