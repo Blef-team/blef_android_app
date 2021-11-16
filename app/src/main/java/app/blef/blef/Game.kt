@@ -159,7 +159,7 @@ class Game : AppCompatActivity() {
         val mHandler = Handler(Looper.getMainLooper())
         val client = OkHttpClient()
         val baseUrl = "https://n4p6oovxsg.execute-api.eu-west-2.amazonaws.com/games"
-        val cardSizeHTML = "width=\"40\" height=\"50\""
+        val cardSizeHTML = "width=\"24%\""
 
         val emptyCardHTML = "<img src=\"cardEmpty.png\" $cardSizeHTML>"
         val questionCardHTML = "<img src=\"cardQuestion.png\" $cardSizeHTML>"
@@ -341,6 +341,9 @@ class Game : AppCompatActivity() {
         fun addOpenStyle(s: String): String {
             return("<style>".plus(assets.open("open_style.css").bufferedReader().lines().collect(Collectors.joining())).plus("</style>").plus(s))
         }
+        fun addCardTableStyle(s: String): String {
+            return("<style>".plus(assets.open("card_table_style.css").bufferedReader().lines().collect(Collectors.joining())).plus("</style>").plus(s))
+        }
         fun formatNickname(raw: String, own: String?): String {
             val formatted = (if (raw == own) "<b>$raw</b>" else raw).replace("_", " ")
             return(formatted)
@@ -480,7 +483,7 @@ class Game : AppCompatActivity() {
                     }
                 }
             }
-            playersInfo.loadDataWithBaseURL("file:///android_asset/", addOpenStyle(playersInfoData), "text/html", "UTF-8", null)
+            playersInfo.loadDataWithBaseURL("file:///android_asset/", addCardTableStyle(playersInfoData), "text/html", "UTF-8", null)
 
             var historyInfoData = ""
             val historyArray = gameObject.getJSONArray("history")
@@ -489,10 +492,10 @@ class Game : AppCompatActivity() {
 
             if (roundEnded) {
                 val loser = historyArray.getJSONObject(historyArray.length() - 1).getString("player")
-                val loserHTML = "<p style=\"display: flex; align-items: center; justify-content: center;\"><img src=\"cardPlus.png\" width=\"40\" height=\"40\">"
+                val loserHTML = "<p class=\"loserInfo\"><img src=\"cardPlus.png\" width=\"40\">"
                     .plus(formatNickname(loser, nickname))
                     .plus("</p>")
-                loserInfo.loadDataWithBaseURL("file:///android_asset/", loserHTML, "text/html", "UTF-8", null)
+                loserInfo.loadDataWithBaseURL("file:///android_asset/", addOpenStyle(loserHTML), "text/html", "UTF-8", null)
             } else {
                 val cp = gameObject.getString("cp_nickname")
                 historyInfoData = historyInfoData.plus(makeRow(
@@ -537,7 +540,7 @@ class Game : AppCompatActivity() {
                 val iCards = playersArray.getJSONObject(i).getInt("n_cards")
                 playersInfoData = playersInfoData.plus(makeRow(
                     makeLeftCell(formatNickname(iNickname, nickname)),
-                    makeRightCell(if (iCards == 0) "" else "\uD83D\uDC51")
+                    makeRightCell(if (iCards == 0) "" else "\uD83C\uDFC6")
                 ))
             }
             playersInfo.loadDataWithBaseURL("file:///android_asset/", addOpenStyle(makeInfoTable(playersInfoData)), "text/html", "UTF-8", null)
