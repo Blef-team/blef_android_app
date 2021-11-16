@@ -13,7 +13,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Blef">
         <activity android:name="app.blef.blef.Creating"/>
-        <activity android:name="app.blef.blef.JoiningWithoutUuid" />
         <activity
             android:name="app.blef.blef.JoiningWithUuid"
             android:exported="true"
