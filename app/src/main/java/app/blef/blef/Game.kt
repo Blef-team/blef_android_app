@@ -581,7 +581,12 @@ class Game : AppCompatActivity() {
                     e.printStackTrace()
                 }
                 override fun onResponse(call: Call, response: Response) {
-                    updateGameIfEngineHappy(response)
+                    val newMessage = response.body!!.string()
+                    val putUpdateOnHold = JSONObject(newMessage).isNull("cp_nickname")
+                    mHandler.post{
+                        updateOnHold.value = putUpdateOnHold
+                        message.setValue(newMessage)
+                    }
                 }
             })
         }
