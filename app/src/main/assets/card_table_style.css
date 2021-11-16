@@ -1,8 +1,6 @@
 table {
     width: 100%;
-    margin: auto;
     border-collapse: collapse;
-    background-color: #F5F5F5;
 }
 
 td {
@@ -10,6 +8,7 @@ td {
     width: 100%;
     line-height: 1.5;
     padding: 2.5vw;
+    padding-top: 0;
 }
 
 table.halfTable {
@@ -25,6 +24,12 @@ img {
     border: 0.225vw;
 }
 
+table.fullTable img {
+    width: 11.3684%;
+}
+
 body{
-  margin: 0;
+    background-color: #F5F5F5;
+    margin: 0;
+    padding-top: 2.5vw;
 }
