@@ -309,6 +309,9 @@ class Game : AppCompatActivity() {
         fun makeCell(s: String): String {
             return("<td>".plus(s).plus("</td>"))
         }
+        fun makeCentreCell(s: String): String {
+            return("<td class=\"centreCell\">".plus(s).plus("</td>"))
+        }
         fun makeLeftCell(s: String): String {
             return("<td class=\"leftCell\">".plus(s).plus("</td>"))
         }
@@ -319,11 +322,6 @@ class Game : AppCompatActivity() {
             var out = "<tr>"
             for (s in ss) out += s
             return(out.plus("</tr>"))
-        }
-        fun makeTable(vararg ss: String): String {
-            var out = "<table><tbody>"
-            for (s in ss) out += s
-            return(out.plus("</tbody></table>"))
         }
         fun makeInfoTable(vararg ss: String): String {
             var out = "<table class=\"infoTable\"><tbody>"
@@ -340,9 +338,6 @@ class Game : AppCompatActivity() {
             for (s in ss) out += s
             return(out.plus("</tbody></table>"))
         }
-        fun addStyle(s: String): String {
-            return("<style>".plus(assets.open("table_style.css").bufferedReader().lines().collect(Collectors.joining())).plus("</style>").plus(s))
-        }
         fun addOpenStyle(s: String): String {
             return("<style>".plus(assets.open("open_style.css").bufferedReader().lines().collect(Collectors.joining())).plus("</style>").plus(s))
         }
@@ -356,10 +351,6 @@ class Game : AppCompatActivity() {
         generalInfo.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
         generalInfo.tag = "generalInfo"
         generalInfo.isVerticalScrollBarEnabled = false
-        val playersIntro = WebView(this@Game)
-        playersIntro.tag = "playersIntro"
-        playersIntro.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-        playersIntro.isVerticalScrollBarEnabled = false
         val playersInfo = WebView(this@Game)
         playersInfo.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
         playersInfo.isVerticalScrollBarEnabled = false
@@ -376,25 +367,23 @@ class Game : AppCompatActivity() {
         loserInfo.tag = "loserInfo"
 
         fun generatePreStartGameInfo(gameObject: JSONObject, gi: LinearLayout) {
-            val generalInfoData = makeTable(
-                makeRow(makeCell("UUID"), makeCell(gameUuid)),
-                makeRow(makeCell("Visibility"), makeCell(if (gameObject.getString("public") == "true") "Public" else "Private")),
-                makeRow(makeCell("Admin"), makeCell(formatNickname(gameObject.getString("admin_nickname"), nickname)))
+            val generalInfoData = makeInfoTable(
+                makeRow(makeLeftCell("UUID"), makeRightCell(gameUuid)),
+                makeRow(makeLeftCell("Visibility"), makeRightCell(if (gameObject.getString("public") == "true") "Public" else "Private")),
+                makeRow(makeLeftCell("Admin"), makeRightCell(formatNickname(gameObject.getString("admin_nickname"), nickname)))
             )
-            generalInfo.loadData(addStyle(generalInfoData), "text/html", "UTF-8")
+            generalInfo.loadDataWithBaseURL("file:///android_asset/", addOpenStyle(generalInfoData), "text/html", "UTF-8", null)
 
-            playersIntro.loadData("Players:", "text/html", "UTF-8")
-            var playersInfoData = ""
+            var playersInfoData = "<br><img src=\"players.png\" width=\"48\" height=\"48\"><br><br>"
             val playersArray = gameObject.getJSONArray("players")
             for (i in 0 until playersArray.length()) {
                 playersInfoData = playersInfoData
-                    .plus(makeRow(makeCell(formatNickname(playersArray.getJSONObject(i).getString("nickname"), nickname))))
+                    .plus(formatNickname(playersArray.getJSONObject(i).getString("nickname"), nickname)).plus("<br>")
             }
-            playersInfoData = addStyle(makeTable(playersInfoData))
-            playersInfo.loadData(playersInfoData, "text/html", "UTF-8")
+            playersInfoData = addOpenStyle(makeInfoTable(makeRow(makeCentreCell(playersInfoData))))
+            playersInfo.loadDataWithBaseURL("file:///android_asset/", playersInfoData, "text/html", "UTF-8", null)
 
             if (gi.findViewWithTag<WebView>("generalInfo") == null) gi.addView(generalInfo)
-            if (gi.findViewWithTag<TextView>("playersIntro") == null) gi.addView(playersIntro)
             if (gi.findViewWithTag<WebView>("playersInfo") == null) gi.addView(playersInfo)
         }
 
@@ -531,7 +520,6 @@ class Game : AppCompatActivity() {
             if (gi.findViewWithTag<TextView>("loserInfo") == null) gi.addView(loserInfo)
             if (gi.findViewWithTag<WebView>("historyInfo") == null) gi.addView(historyInfo)
 
-            if (gi.findViewWithTag<TextView>("playersIntro") != null) gi.removeView(playersIntro)
             if (gi.findViewWithTag<TextView>("generalInfo") != null) gi.removeView(generalInfo)
 
             if (!roundEnded) {
@@ -548,16 +536,15 @@ class Game : AppCompatActivity() {
                 val iNickname = playersArray.getJSONObject(i).getString("nickname")
                 val iCards = playersArray.getJSONObject(i).getInt("n_cards")
                 playersInfoData = playersInfoData.plus(makeRow(
-                    makeCell(formatNickname(iNickname, nickname)),
-                    makeCell(if (iCards == 0) "" else "\uD83D\uDC51")
+                    makeLeftCell(formatNickname(iNickname, nickname)),
+                    makeRightCell(if (iCards == 0) "" else "\uD83D\uDC51")
                 ))
             }
-            playersInfo.loadData(addStyle(makeTable(playersInfoData)), "text/html", "UTF-8")
+            playersInfo.loadDataWithBaseURL("file:///android_asset/", addOpenStyle(makeInfoTable(playersInfoData)), "text/html", "UTF-8", null)
 
             if (gi.findViewWithTag<WebView>("playersInfo") == null) gi.addView(playersInfo)
 
             if (gi.findViewWithTag<TextView>("generalInfo") != null) gi.removeView(generalInfo)
-            if (gi.findViewWithTag<TextView>("playersIntro") != null) gi.removeView(playersIntro)
             if (gi.findViewWithTag<TextView>("loserInfo") != null) gi.removeView(loserInfo)
             if (gi.findViewWithTag<WebView>("historyInfo") != null) gi.removeView(historyInfo)
         }

@@ -31,6 +31,12 @@ table.infoTable {
     border-collapse: collapse;
 }
 
+table.infoTable td.centreCell {
+    width: 100%;
+    line-height: 1.25;
+    text-align: center;
+}
+
 table.infoTable td.leftCell {
     width: 50%;
     line-height: 1.25;
