@@ -471,9 +471,14 @@ class Game : AppCompatActivity() {
                     }
                 }
             } else {
-                for (i in 0 until handsArray.length()) {
+                val activeNicknames = ArrayList<String>()
+                for (i in 0 until handsArray.length()) activeNicknames.add(handsArray.getJSONObject(i).getString("nickname"))
+
+                for (i in 0 until playersArray.length()) {
                     val iNickname = playersArray.getJSONObject(i).getString("nickname")
-                    val cardsData = showOpenHand(handsArray.getJSONObject(i).getJSONArray("hand"), max)
+                    val cardsData =
+                        if (activeNicknames.contains(iNickname)) showOpenHand(handsArray.getJSONObject(activeNicknames.indexOf(iNickname)).getJSONArray("hand"), max)
+                        else showClosedHand(0, max)
                     if (nPlayers.mod(2) == 1 && i == nPlayers - 1) {
                         playersInfoData = playersInfoData.plus(makeFullTable(makeCell(
                             (formatNickname(iNickname, nickname)).plus("<br>").plus(cardsData)
