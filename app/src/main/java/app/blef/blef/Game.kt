@@ -359,6 +359,7 @@ class Game : AppCompatActivity() {
         playersInfo.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
         playersInfo.isVerticalScrollBarEnabled = false
         playersInfo.tag = "playersInfo"
+        var playersInfoFixed = false
         val historyIntro = TextView(this@Game)
         historyIntro.tag = "historyIntro"
         val historyInfo = WebView(this@Game)
@@ -530,6 +531,13 @@ class Game : AppCompatActivity() {
                 loserInfo.visibility = View.GONE
             } else {
                 loserInfo.visibility = View.VISIBLE
+            }
+
+            playersInfo.post {
+                if(playersInfo.height > 0) {
+                    playersInfo.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, playersInfo.height)
+                    playersInfoFixed = true
+                }
             }
         }
 
