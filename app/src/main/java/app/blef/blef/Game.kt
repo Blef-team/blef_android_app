@@ -160,10 +160,9 @@ class Game : AppCompatActivity() {
         val mHandler = Handler(Looper.getMainLooper())
         val client = OkHttpClient()
         val baseUrl = "https://n4p6oovxsg.execute-api.eu-west-2.amazonaws.com/games"
-        val cardSizeHTML = "width=\"24%\""
 
-        val emptyCardHTML = "<img src=\"cardEmpty.png\" $cardSizeHTML>"
-        val questionCardHTML = "<img src=\"cardQuestion.png\" $cardSizeHTML>"
+        val emptyCardHTML = "<img class=\"emptyCard\" src=\"cardEmpty2.png\">"
+        val questionCardHTML = "<img class=\"questionCard\" src=\"cardQuestion.png\">"
 
         fun updateGame() {
             val queryUrl = baseUrl + if (playerUuid != null)  "/$gameUuid?player_uuid=$playerUuid" else "/$gameUuid"
@@ -413,7 +412,7 @@ class Game : AppCompatActivity() {
             val sortedList = cardsList.sortedWith(compareBy({ -it.value }, { -it.suit }))
             for (j in 0 until max) {
                 if (j < sortedList.size) {
-                    cardsData = cardsData.plus("<img src=\"cards/cropped/${sortedList[j].value}${sortedList[j].suit}.png\" $cardSizeHTML>")
+                    cardsData = cardsData.plus("<img class=\"openCard\" src=\"cards/cropped/${sortedList[j].value}${sortedList[j].suit}.png\">")
                 } else {
                     cardsData = cardsData.plus(emptyCardHTML)
                 }

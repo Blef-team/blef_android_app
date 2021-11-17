@@ -21,7 +21,13 @@ table.halfTable td{
 }
 
 img {
-    border: 0.225vw;
+    margin: 0.22vw;
+    width: 10.8vw;
+    height: 13.5vw;
+}
+
+img.emptyCard {
+    opacity: 30%;
 }
 
 table.fullTable img {
