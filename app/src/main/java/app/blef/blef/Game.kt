@@ -5,6 +5,7 @@ package app.blef.blef
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
 import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
@@ -14,6 +15,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebView
+import android.webkit.WebViewClient
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.MutableLiveData
@@ -360,7 +362,15 @@ class Game : AppCompatActivity() {
         playersInfo.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
         playersInfo.isVerticalScrollBarEnabled = false
         playersInfo.tag = "playersInfo"
-        var playersInfoFixed = false
+        class BetterWebViewClient : WebViewClient() {
+            override fun onPageStarted(view: WebView, url: String, facIcon: Bitmap?) {
+                playersInfo.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, playersInfo.height)
+            }
+            override fun onPageFinished(view: WebView, url: String) {
+                playersInfo.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+            }
+        }
+        playersInfo.webViewClient = BetterWebViewClient()
         val historyIntro = TextView(this@Game)
         historyIntro.tag = "historyIntro"
         val historyInfo = WebView(this@Game)
@@ -531,13 +541,6 @@ class Game : AppCompatActivity() {
                 loserInfo.visibility = View.GONE
             } else {
                 loserInfo.visibility = View.VISIBLE
-            }
-
-            playersInfo.post {
-                if(playersInfo.height > 0 && !playersInfoFixed) {
-                    playersInfo.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, playersInfo.height)
-                    playersInfoFixed = true
-                }
             }
         }
 

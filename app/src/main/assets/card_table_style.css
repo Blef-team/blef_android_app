@@ -27,11 +27,7 @@ img {
 }
 
 img.emptyCard {
-    opacity: 30%;
-}
-
-table.fullTable img {
-    width: 11.3684%;
+    opacity: 35%;
 }
 
 body{

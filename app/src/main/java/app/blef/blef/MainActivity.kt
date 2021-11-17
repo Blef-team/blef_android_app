@@ -11,7 +11,6 @@ import android.os.Handler
 import android.os.Looper
 import android.view.View
 import android.widget.*
-import androidx.appcompat.app.AlertDialog
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.MutableLiveData
 import okhttp3.*
