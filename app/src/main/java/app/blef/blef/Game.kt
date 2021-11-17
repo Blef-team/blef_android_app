@@ -154,6 +154,7 @@ class Game : AppCompatActivity() {
             }
         }
         val message = ProperMutableLiveData<String>()
+        var handsTrigger = ""
         val updateOnHold = MutableLiveData<Boolean>()
         updateOnHold.value = false
         val gameFinished = MutableLiveData<Boolean>()
@@ -432,7 +433,7 @@ class Game : AppCompatActivity() {
             return(cardsData)
         }
 
-        fun generateRunningGameInfo(gameObject: JSONObject, gi: LinearLayout) {
+        fun updateHandsUI(gameObject: JSONObject) {
             val max = gameObject.getString("max_cards").toInt()
             var playersInfoData = ""
             val playersArray = gameObject.getJSONArray("players")
@@ -496,7 +497,9 @@ class Game : AppCompatActivity() {
                 }
             }
             playersInfo.loadDataWithBaseURL("file:///android_asset/", addCardTableStyle(playersInfoData), "text/html", "UTF-8", null)
+        }
 
+        fun generateRunningGameInfo(gameObject: JSONObject, gi: LinearLayout) {
             var historyInfoData = ""
             val historyArray = gameObject.getJSONArray("history")
 
@@ -737,6 +740,12 @@ class Game : AppCompatActivity() {
             val gameObject = JSONObject(message.value.toString())
             generateGameInfo(gameObject)
             generateGameControls(gameObject)
+
+            val newHandsTrigger = gameObject.getInt("round_number").toString().plus("_").plus(gameObject.getJSONArray("hands").length().toString())
+            if (newHandsTrigger != handsTrigger && gameObject.getString("status") == "Running") {
+                handsTrigger = newHandsTrigger
+                updateHandsUI(gameObject)
+            }
 
             if (gameObject.getString("status") == "Finished") {
                 with (sharedPref.edit()) {
