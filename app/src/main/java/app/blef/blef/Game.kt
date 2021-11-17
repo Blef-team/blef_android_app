@@ -534,7 +534,7 @@ class Game : AppCompatActivity() {
             }
 
             playersInfo.post {
-                if(playersInfo.height > 0) {
+                if(playersInfo.height > 0 && !playersInfoFixed) {
                     playersInfo.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, playersInfo.height)
                     playersInfoFixed = true
                 }
