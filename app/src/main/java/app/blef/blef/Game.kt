@@ -344,8 +344,10 @@ class Game : AppCompatActivity() {
         fun addCardTableStyle(s: String): String {
             return("<style>".plus(assets.open("card_table_style.css").bufferedReader().lines().collect(Collectors.joining())).plus("</style>").plus(s))
         }
-        fun formatNickname(raw: String, own: String?): String {
-            val formatted = (if (raw == own) "<b>$raw</b>" else raw).replace("_", " ")
+        fun formatNickname(raw: String, own: String?, active: Boolean = true): String {
+            var formatted = if (raw == own) "<b>$raw</b>" else raw
+            formatted = formatted.replace("_", " ")
+            if (!active) formatted = "<s>$formatted</s>"
             return(formatted)
         }
 
@@ -382,7 +384,7 @@ class Game : AppCompatActivity() {
             val playersArray = gameObject.getJSONArray("players")
             for (i in 0 until playersArray.length()) {
                 playersInfoData = playersInfoData
-                    .plus(formatNickname(playersArray.getJSONObject(i).getString("nickname"), nickname)).plus("<br>")
+                    .plus(formatNickname(playersArray.getJSONObject(i).getString("nickname"), nickname, true)).plus("<br>")
             }
             playersInfoData = addOpenStyle(makeInfoTable(makeRow(makeCentreCell(playersInfoData))))
             playersInfo.loadDataWithBaseURL("file:///android_asset/", playersInfoData, "text/html", "UTF-8", null)
@@ -434,11 +436,11 @@ class Game : AppCompatActivity() {
                     val cardsData = showClosedHand(iCards, max)
                     if (nPlayers.mod(2) == 1 && i == nPlayers - 1) {
                         playersInfoData = playersInfoData.plus(makeFullTable(makeCell(
-                            (formatNickname(iNickname, nickname)).plus("<br>").plus(cardsData)
+                            (formatNickname(iNickname, nickname, iCards > 0)).plus("<br>").plus(cardsData)
                         )))
                     } else {
                         playersInfoData = playersInfoData.plus(makeHalfTable(makeCell(
-                            (formatNickname(iNickname, nickname)).plus("<br>").plus(cardsData)
+                            (formatNickname(iNickname, nickname, iCards > 0)).plus("<br>").plus(cardsData)
                         )))
                         if (i.mod(2) == 1) playersInfoData = playersInfoData.plus("<br>")
                     }
@@ -447,18 +449,16 @@ class Game : AppCompatActivity() {
                 for (i in 0 until playersArray.length()) {
                     val iNickname = playersArray.getJSONObject(i).getString("nickname")
                     val iCards = playersArray.getJSONObject(i).getInt("n_cards")
-                    val cardsData = when {
-                            iCards == 0 -> "Lost"
-                            iNickname == nickname -> showOpenHand(handsArray.getJSONObject(0).getJSONArray("hand"), max)
-                            else -> showClosedHand(iCards, max)
-                        }
+                    val cardsData =
+                        if (iNickname == nickname) showOpenHand(handsArray.getJSONObject(0).getJSONArray("hand"), max)
+                        else showClosedHand(iCards, max)
                     if (nPlayers.mod(2) == 1 && i == nPlayers - 1) {
                         playersInfoData = playersInfoData.plus(makeFullTable(makeCell(
-                            (formatNickname(iNickname, nickname)).plus("<br>").plus(cardsData)
+                            (formatNickname(iNickname, nickname, iCards > 0)).plus("<br>").plus(cardsData)
                         )))
                     } else {
                         playersInfoData = playersInfoData.plus(makeHalfTable(makeCell(
-                            (formatNickname(iNickname, nickname)).plus("<br>").plus(cardsData)
+                            (formatNickname(iNickname, nickname, iCards > 0)).plus("<br>").plus(cardsData)
                         )))
                         if (i.mod(2) == 1) playersInfoData = playersInfoData.plus("<br>")
                     }
@@ -469,16 +469,17 @@ class Game : AppCompatActivity() {
 
                 for (i in 0 until playersArray.length()) {
                     val iNickname = playersArray.getJSONObject(i).getString("nickname")
+                    val active = activeNicknames.contains(iNickname)
                     val cardsData =
-                        if (activeNicknames.contains(iNickname)) showOpenHand(handsArray.getJSONObject(activeNicknames.indexOf(iNickname)).getJSONArray("hand"), max)
+                        if (active) showOpenHand(handsArray.getJSONObject(activeNicknames.indexOf(iNickname)).getJSONArray("hand"), max)
                         else showClosedHand(0, max)
                     if (nPlayers.mod(2) == 1 && i == nPlayers - 1) {
                         playersInfoData = playersInfoData.plus(makeFullTable(makeCell(
-                            (formatNickname(iNickname, nickname)).plus("<br>").plus(cardsData)
+                            (formatNickname(iNickname, nickname, active)).plus("<br>").plus(cardsData)
                         )))
                     } else {
                         playersInfoData = playersInfoData.plus(makeHalfTable(makeCell(
-                            (formatNickname(iNickname, nickname)).plus("<br>").plus(cardsData)
+                            (formatNickname(iNickname, nickname, active)).plus("<br>").plus(cardsData)
                         )))
                         if (i.mod(2) == 1) playersInfoData = playersInfoData.plus("<br>")
                     }
@@ -546,9 +547,10 @@ class Game : AppCompatActivity() {
             for (i in 0 until playersArray.length()) {
                 val iNickname = playersArray.getJSONObject(i).getString("nickname")
                 val iCards = playersArray.getJSONObject(i).getInt("n_cards")
+                val active = iCards > 0
                 playersInfoData = playersInfoData.plus(makeRow(
-                    makeLeftCell(formatNickname(iNickname, nickname)),
-                    makeRightCell(if (iCards == 0) "" else "\uD83C\uDFC6")
+                    makeLeftCell(formatNickname(iNickname, nickname, active)),
+                    makeRightCell(if (active) "\uD83C\uDFC6" else "")
                 ))
             }
             playersInfo.loadDataWithBaseURL("file:///android_asset/", addOpenStyle(makeInfoTable(playersInfoData)), "text/html", "UTF-8", null)
