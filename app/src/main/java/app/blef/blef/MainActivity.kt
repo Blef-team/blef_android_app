@@ -32,7 +32,7 @@ class MainActivity : AppCompatActivity() {
         val headerText = TextView(this@MainActivity)
         headerText.text = "Public games (tap to join):"
         val playerFilter = EditText(this@MainActivity)
-        playerFilter.hint = "Filter UUIDs / players..."
+        playerFilter.hint = "Filter room numbers / players..."
         playerFilter.tag = "player_filter"
         pg.addView(headerText)
         pg.addView(playerFilter)
@@ -135,7 +135,7 @@ class MainActivity : AppCompatActivity() {
                 for (i in 0 until unfilteredPublicGames.length()) {
                     var isMatch = false
                     val iGame = unfilteredPublicGames.getJSONObject(i)
-                    if (iGame.getString("game_uuid").contains(filter.text.toString(), ignoreCase = true)) {
+                    if (iGame.getString("room").contains(filter.text.toString(), ignoreCase = true)) {
                         isMatch = true
                     }
                     val players = iGame.getJSONArray("players")
@@ -164,6 +164,7 @@ class MainActivity : AppCompatActivity() {
             if (length > 0) {
                 for (i in 0 until length) {
                     val gameUuid = JSONObject(filteredPublicGames.get(i).toString()).getString("game_uuid")
+                    val room = JSONObject(filteredPublicGames.get(i).toString()).getString("room")
                     val playersArray = JSONObject(filteredPublicGames.get(i).toString()).getJSONArray("players")
                     val playersList = ArrayList<String>()
                     for (j in 0 until playersArray.length()){
@@ -173,8 +174,7 @@ class MainActivity : AppCompatActivity() {
 
                     val gameText = TextView(this@MainActivity)
                     gameText.setPadding(0, 30, 0, 0)
-                    val shortenedUuid = gameUuid.subSequence(0, 7).toString().plus("…")
-                    gameText.text = "UUID: $shortenedUuid\n${getString(R.string.players)}: $playersText"
+                    gameText.text = "Room $room\n${getString(R.string.players)}: $playersText"
                     gameText.setOnClickListener {
                         val intent = Intent(this@MainActivity, JoiningWithUuid::class.java).apply {
                             putExtra("game_uuid", gameUuid)

@@ -385,8 +385,7 @@ class Game : AppCompatActivity() {
 
         fun generatePreStartGameInfo(gameObject: JSONObject, gi: LinearLayout) {
             val generalInfoData = makeInfoTable(
-                makeRow(makeLeftCell("UUID"), makeRightCell(gameUuid)),
-                makeRow(makeLeftCell("Visibility"), makeRightCell(if (gameObject.getString("public") == "true") "Public" else "Private")),
+                makeRow(makeLeftCell("Room"), makeRightCell(if (gameObject.getString("public") == "true") gameObject.getString("room") else "Private")),
                 makeRow(makeLeftCell("Admin"), makeRightCell(formatNickname(gameObject.getString("admin_nickname"), nickname)))
             )
             generalInfo.loadDataWithBaseURL("file:///android_asset/", addOpenStyle(generalInfoData), "text/html", "UTF-8", null)
