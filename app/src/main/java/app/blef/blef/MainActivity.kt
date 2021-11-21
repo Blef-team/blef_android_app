@@ -28,10 +28,16 @@ class MainActivity : AppCompatActivity() {
 
         val message = MutableLiveData<String>()
 
+        val pixelDensity = resources.displayMetrics.density
+        fun adjustForDensity(raw: Int): Int {
+            return((raw * pixelDensity).toInt())
+        }
+
         val pg = findViewById<LinearLayout>(R.id.publicGames)
         val headerText = TextView(this@MainActivity)
         headerText.text = "Public games (tap to join):"
         val playerFilter = EditText(this@MainActivity)
+        playerFilter.height = adjustForDensity(60)
         playerFilter.hint = "Filter room numbers / players..."
         playerFilter.tag = "player_filter"
         pg.addView(headerText)
