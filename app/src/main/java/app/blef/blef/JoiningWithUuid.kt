@@ -26,7 +26,7 @@ class JoiningWithUuid : AppCompatActivity() {
         val linkData: Uri? = intent?.data
         val sharedPref = this.getSharedPreferences("app.blef.blef.MAIN", Context.MODE_PRIVATE)
 
-        val gameUuid = linkData?.toString()?.removePrefix("http://blef.app/")
+        val gameUuid = linkData?.toString()?.removePrefix("https://www.blef.app/")
             ?: intent.getStringExtra("game_uuid")
 
         val uuidText = findViewById<TextView>(R.id.join_with_uuid_uuid_text)
