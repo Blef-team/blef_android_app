@@ -10,6 +10,7 @@ import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.text.InputType
 import android.view.Gravity
 import android.view.MenuItem
 import android.view.View
@@ -134,8 +135,8 @@ class Game : AppCompatActivity() {
         }
 
         val gameUuid = intent.getStringExtra("game_uuid").toString().lowercase()
-        val playerUuid = intent.getStringExtra("player_uuid")
-        val nickname = intent.getStringExtra("nickname")
+        var playerUuid = intent.getStringExtra("player_uuid")
+        var nickname = intent.getStringExtra("nickname")
 
         val sharedPref = this.getSharedPreferences("app.blef.blef.MAIN", Context.MODE_PRIVATE)
         with (sharedPref.edit()) {
@@ -679,6 +680,65 @@ class Game : AppCompatActivity() {
         val confirmOrCheck = LinearLayout(this@Game)
         confirmOrCheck.orientation = LinearLayout.HORIZONTAL
         confirmOrCheck.isBaselineAligned = false
+
+        val typeNickname = EditText(this@Game)
+        typeNickname.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, adjustForDensity(80), 1f)
+            .apply{setMargins(0, adjustForDensity(6), adjustForDensity(6), adjustForDensity(6))}
+        typeNickname.inputType = InputType.TYPE_CLASS_TEXT
+        typeNickname.hint = "Nickname..."
+
+        val generateNickname = MaterialButton(this@Game)
+        generateNickname.text = "\uD83C\uDFB2"
+        generateNickname.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, adjustForDensity(80), 3f)
+            .apply{setMargins(adjustForDensity(6), adjustForDensity(6), 0, adjustForDensity(6))}
+        generateNickname.setOnClickListener {
+            typeNickname.setText("Text")
+        }
+
+        fun join() {
+            val rawNickname = typeNickname.text.toString()
+            val tryingNickname = rawNickname.replace(" ", "_")
+            val request = Request.Builder()
+                .url("https://n4p6oovxsg.execute-api.eu-west-2.amazonaws.com/games/$gameUuid/join?nickname=$tryingNickname")
+                .build()
+            client.newCall(request).enqueue(object : Callback {
+                override fun onFailure(call: Call, e: IOException) {
+                    e.printStackTrace()
+                }
+                override fun onResponse(call: Call, response: Response) {
+                    response.use {
+                        if (!response.isSuccessful) {
+                            showEngineError(R.id.activity_game, response)
+                        } else {
+                            val jsonBody = JSONObject(response.body!!.string())
+                            playerUuid = jsonBody.getString("player_uuid")
+                            nickname = tryingNickname
+                            with (sharedPref.edit()) {
+                                putString("game_uuid", gameUuid)
+                                putString("player_uuid", playerUuid)
+                                putString("preferred_nickname", nickname)
+                                putString("nickname", nickname)
+                                apply()
+                            }
+                        }
+                    }
+                }
+            })
+        }
+
+        val confirmJoin = MaterialButton(this@Game)
+        confirmJoin.text = "Join"
+        confirmJoin.height = adjustForDensity(80)
+        confirmJoin.setOnClickListener {
+            join()
+        }
+
+        val typeOrGenerate = LinearLayout(this@Game)
+        typeOrGenerate.orientation = LinearLayout.HORIZONTAL
+        typeOrGenerate.isBaselineAligned = false
+        typeOrGenerate.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+        typeOrGenerate.addView(typeNickname)
+        typeOrGenerate.addView(generateNickname)
 
         val updateButton = MaterialButton(this@Game)
         updateButton.tag = "update"
