@@ -692,7 +692,7 @@ class Game : AppCompatActivity() {
         generateNickname.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, adjustForDensity(80), 3f)
             .apply{setMargins(adjustForDensity(6), adjustForDensity(6), 0, adjustForDensity(6))}
         generateNickname.setOnClickListener {
-            typeNickname.setText("Text")
+            typeNickname.setText(generateNickname())
         }
 
         fun join() {
@@ -715,7 +715,7 @@ class Game : AppCompatActivity() {
                             nickname = tryingNickname
                             with (sharedPref.edit()) {
                                 putString("player_uuid", playerUuid)
-                                putString("preferred_nickname", nickname)
+                                putString("preferred_nickname", rawNickname)
                                 putString("nickname", nickname)
                                 apply()
                             }
