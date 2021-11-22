@@ -182,7 +182,7 @@ class MainActivity : AppCompatActivity() {
                     gameText.setPadding(0, 30, 0, 0)
                     gameText.text = "Room $room\n${getString(R.string.players)}: $playersText"
                     gameText.setOnClickListener {
-                        val intent = Intent(this@MainActivity, JoiningWithUuid::class.java).apply {
+                        val intent = Intent(this@MainActivity, Game::class.java).apply {
                             putExtra("game_uuid", gameUuid)
                         }
                         startActivity(intent)
