@@ -11,6 +11,7 @@ import android.os.Handler
 import android.os.Looper
 import android.view.View
 import android.widget.*
+import androidx.appcompat.app.AlertDialog
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.MutableLiveData
 import okhttp3.*
@@ -31,6 +32,14 @@ class MainActivity : AppCompatActivity() {
         val pixelDensity = resources.displayMetrics.density
         fun adjustForDensity(raw: Int): Int {
             return((raw * pixelDensity).toInt())
+        }
+
+        val redirectReason = intent.getStringExtra("reason").toString()
+        if (redirectReason == "Invite failed") {
+            AlertDialog.Builder(this)
+                .setMessage("Invite link failed")
+                .setPositiveButton("OK", null)
+                .show()
         }
 
         val pg = findViewById<LinearLayout>(R.id.publicGames)
