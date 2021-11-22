@@ -44,7 +44,6 @@ class MainActivity : AppCompatActivity() {
         pg.addView(playerFilter)
 
         val sharedPref = this.getSharedPreferences("app.blef.blef.MAIN", Context.MODE_PRIVATE)
-        println()
         val lastGameUuid = sharedPref.getString("game_uuid", "")
         val continueButton = findViewById<Button>(R.id.continueGame)
 
@@ -180,10 +179,19 @@ class MainActivity : AppCompatActivity() {
                     gameText.setPadding(0, 30, 0, 0)
                     gameText.text = "Room $room\n${getString(R.string.players)}: $playersText"
                     gameText.setOnClickListener {
-                        val intent = Intent(this@MainActivity, Game::class.java).apply {
-                            putExtra("game_uuid", gameUuid)
+                        if (sharedPref.getString("game_uuid", null) == gameUuid) {
+                            val intent = Intent(this@MainActivity, Game::class.java).apply {
+                                putExtra("game_uuid", sharedPref.getString("game_uuid", null))
+                                putExtra("player_uuid", sharedPref.getString("player_uuid", null))
+                                putExtra("nickname", sharedPref.getString("nickname", null))
+                            }
+                            startActivity(intent)
+                        } else {
+                            val intent = Intent(this@MainActivity, Game::class.java).apply {
+                                putExtra("game_uuid", gameUuid)
+                            }
+                            startActivity(intent)
                         }
-                        startActivity(intent)
                     }
                     pg.addView(gameText, i + 2)
                 }

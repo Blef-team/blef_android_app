@@ -26,6 +26,8 @@ class JoiningWithUuid : AppCompatActivity() {
         val linkData: Uri? = intent?.data
         val gameUuid = linkData?.toString()?.removePrefix("https://www.blef.app/")
 
+        val sharedPref = this.getSharedPreferences("app.blef.blef.MAIN", Context.MODE_PRIVATE)
+
         val mHandler = Handler(Looper.getMainLooper())
         val client = OkHttpClient()
         val request = Request.Builder()
@@ -46,10 +48,19 @@ class JoiningWithUuid : AppCompatActivity() {
                         }
                         mHandler.post{startActivity(intent)}
                     } else {
-                        val intent = Intent(this@JoiningWithUuid, Game::class.java).apply {
-                            putExtra("game_uuid", gameUuid)
+                        if (sharedPref.getString("game_uuid", null) == gameUuid) {
+                            val intent = Intent(this@JoiningWithUuid, Game::class.java).apply {
+                                putExtra("game_uuid", sharedPref.getString("game_uuid", null))
+                                putExtra("player_uuid", sharedPref.getString("player_uuid", null))
+                                putExtra("nickname", sharedPref.getString("nickname", null))
+                            }
+                            mHandler.post{startActivity(intent)}
+                        } else {
+                            val intent = Intent(this@JoiningWithUuid, Game::class.java).apply {
+                                putExtra("game_uuid", gameUuid)
+                            }
+                            mHandler.post{startActivity(intent)}
                         }
-                        mHandler.post{startActivity(intent)}
                     }
                 }
             }
