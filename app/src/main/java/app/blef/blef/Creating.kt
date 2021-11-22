@@ -27,6 +27,11 @@ class Creating : AppCompatActivity() {
         val nicknameEdittext = findViewById<EditText>(R.id.create_nickname)
         nicknameEdittext.setText(sharedPref.getString("preferred_nickname", ""))
         nicknameEdittext.requestFocus()
+
+        findViewById<Button>(R.id.create_generate_nickname).setOnClickListener {
+            nicknameEdittext.setText(generateNickname())
+        }
+
         val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.showSoftInput(nicknameEdittext, 0)
 
@@ -34,7 +39,7 @@ class Creating : AppCompatActivity() {
             val rawNickname = nicknameEdittext.text.toString()
             val nickname = rawNickname.replace(" ", "_")
             with (sharedPref.edit()) {
-                putString("preferred_nickname", nickname)
+                putString("preferred_nickname", rawNickname)
                 apply()
             }
 
