@@ -142,7 +142,6 @@ class Game : AppCompatActivity() {
         with (sharedPref.edit()) {
             putString("game_uuid", gameUuid)
             putString("player_uuid", playerUuid)
-            putString("preferred_nickname", nickname)
             putString("nickname", nickname)
             apply()
         }
@@ -685,6 +684,7 @@ class Game : AppCompatActivity() {
         typeNickname.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, adjustForDensity(80), 1f)
             .apply{setMargins(0, adjustForDensity(6), adjustForDensity(6), adjustForDensity(6))}
         typeNickname.inputType = InputType.TYPE_CLASS_TEXT
+        typeNickname.setText(sharedPref.getString("preferred_nickname", ""))
         typeNickname.hint = "Nickname..."
 
         val generateNickname = MaterialButton(this@Game)
@@ -714,7 +714,6 @@ class Game : AppCompatActivity() {
                             playerUuid = jsonBody.getString("player_uuid")
                             nickname = tryingNickname
                             with (sharedPref.edit()) {
-                                putString("game_uuid", gameUuid)
                                 putString("player_uuid", playerUuid)
                                 putString("preferred_nickname", nickname)
                                 putString("nickname", nickname)

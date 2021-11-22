@@ -33,6 +33,10 @@ class Creating : AppCompatActivity() {
         findViewById<Button>(R.id.create_create_button).setOnClickListener {
             val rawNickname = nicknameEdittext.text.toString()
             val nickname = rawNickname.replace(" ", "_")
+            with (sharedPref.edit()) {
+                putString("preferred_nickname", nickname)
+                apply()
+            }
 
             val mHandler = Handler(Looper.getMainLooper())
             val client = OkHttpClient()

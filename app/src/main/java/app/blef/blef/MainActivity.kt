@@ -66,7 +66,6 @@ class MainActivity : AppCompatActivity() {
                             with (sharedPref.edit()) {
                                 putString("game_uuid", "")
                                 putString("player_uuid", "")
-                                putString("preferred_nickname", "")
                                 putString("nickname", "")
                                 apply()
                             }
@@ -77,16 +76,15 @@ class MainActivity : AppCompatActivity() {
                                 with (sharedPref.edit()) {
                                     putString("game_uuid", "")
                                     putString("player_uuid", "")
-                                    putString("preferred_nickname", "")
                                     putString("nickname", "")
                                     apply()
                                 }
                                 mHandler.post{ continueButton.visibility = View.GONE }
                             } else {
                                 val continueIntent = Intent(this@MainActivity, Game::class.java).apply {
-                                    putExtra("game_uuid", sharedPref.getString("game_uuid", ""))
-                                    putExtra("player_uuid", sharedPref.getString("player_uuid", ""))
-                                    putExtra("nickname", sharedPref.getString("nickname", ""))
+                                    putExtra("game_uuid", sharedPref.getString("game_uuid", null))
+                                    putExtra("player_uuid", sharedPref.getString("player_uuid", null))
+                                    putExtra("nickname", sharedPref.getString("nickname", null))
                                 }
                                 mHandler.post{
                                     continueButton.visibility = View.VISIBLE
