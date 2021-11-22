@@ -729,6 +729,9 @@ class Game : AppCompatActivity() {
         val confirmJoin = MaterialButton(this@Game)
         confirmJoin.text = "Join"
         confirmJoin.height = adjustForDensity(80)
+        confirmJoin.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply{
+            setMargins(0, 0, 0, adjustForDensity(6))
+        }
         confirmJoin.setOnClickListener {
             join()
         }
