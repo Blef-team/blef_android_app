@@ -752,46 +752,49 @@ class Game : AppCompatActivity() {
             ll.removeAllViews()
 
             val history = gameObject.getJSONArray("history")
-
-            if (updateOnHold.value == true) {
-                ll.removeAllViews()
-                ll.addView(updateButton)
-            } else if (gameObject.getString("admin_nickname") == nickname && gameObject.getString("status") == "Not started") {
-                ll.removeAllViews()
-                ll.addView(startButton)
-                if (gameObject.getString("public") == "false") {
-                    publicPrivateButton.tag = "make_public"
-                    publicPrivateButton.text = "Make public"
-                    publicPrivateButton.setOnClickListener{makePublic()}
-                } else {
-                    publicPrivateButton.tag = "make_private"
-                    publicPrivateButton.text = "Make private"
-                    publicPrivateButton.setOnClickListener{makePrivate()}
+            when {
+                updateOnHold.value == true -> {
+                    ll.addView(updateButton)
                 }
-                ll.addView(publicPrivateButton)
-            } else if (gameObject.getString("cp_nickname") == nickname) {
-                // Time to move
-                confirmOrCheck.removeAllViews()
-                if (gameObject.getJSONArray("history").length() == 0) {
-                    ll.addView(makeBetChooser(-1))
-                    confirmOrCheck.addView(confirmButton)
-                    confirmButton.layoutParams = singleButtonParams
-                } else if (history.getJSONObject(history.length() - 1).getInt("action_id") in 0..86) {
-                    val lastAction = history.getJSONObject(history.length() - 1).getInt("action_id")
-                    ll.addView(makeBetChooser(lastAction))
-                    confirmOrCheck.addView(confirmButton)
-                    confirmOrCheck.addView(checkButton)
-                    confirmButton.layoutParams = leftButtonParams
-                    checkButton.layoutParams = rightButtonParams
-                } else {
-                    confirmOrCheck.addView(checkButton)
-                    checkButton.layoutParams = singleButtonParams
+                gameObject.getString("cp_nickname") == nickname -> {
+                    confirmOrCheck.removeAllViews()
+                    if (gameObject.getJSONArray("history").length() == 0) {
+                        ll.addView(makeBetChooser(-1))
+                        confirmOrCheck.addView(confirmButton)
+                        confirmButton.layoutParams = singleButtonParams
+                    } else if (history.getJSONObject(history.length() - 1).getInt("action_id") in 0..86) {
+                        val lastAction = history.getJSONObject(history.length() - 1).getInt("action_id")
+                        ll.addView(makeBetChooser(lastAction))
+                        confirmOrCheck.addView(confirmButton)
+                        confirmOrCheck.addView(checkButton)
+                        confirmButton.layoutParams = leftButtonParams
+                        checkButton.layoutParams = rightButtonParams
+                    } else {
+                        confirmOrCheck.addView(checkButton)
+                        checkButton.layoutParams = singleButtonParams
+                    }
+                    ll.addView(confirmOrCheck)
                 }
-                ll.addView(confirmOrCheck)
-            }
-
-            if (gameObject.getString("status") == "Not started") {
-                ll.addView(inviteButton)
+                gameObject.getString("status") == "Not started" && nickname == gameObject.getString("admin_nickname") -> {
+                    ll.addView(startButton)
+                    if (gameObject.getString("public") == "false") {
+                        publicPrivateButton.tag = "make_public"
+                        publicPrivateButton.text = "Make public"
+                        publicPrivateButton.setOnClickListener{makePublic()}
+                    } else {
+                        publicPrivateButton.tag = "make_private"
+                        publicPrivateButton.text = "Make private"
+                        publicPrivateButton.setOnClickListener{makePrivate()}
+                    }
+                    ll.addView(publicPrivateButton)
+                }
+                gameObject.getString("status") == "Not started" && nickname != null -> {
+                    ll.addView(inviteButton)
+                }
+                gameObject.getString("status") == "Not started" && nickname == null -> {
+                    ll.addView(typeOrGenerate)
+                    ll.addView(confirmJoin)
+                }
             }
         }
 
