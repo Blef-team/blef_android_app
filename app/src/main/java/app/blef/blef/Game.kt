@@ -790,6 +790,7 @@ class Game : AppCompatActivity() {
                         publicPrivateButton.setOnClickListener{makePrivate()}
                     }
                     ll.addView(publicPrivateButton)
+                    ll.addView(inviteButton)
                 }
                 gameObject.getString("status") == "Not started" && nickname != null -> {
                     ll.addView(inviteButton)
