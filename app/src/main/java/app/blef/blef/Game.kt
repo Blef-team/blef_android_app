@@ -31,97 +31,6 @@ import java.io.IOException
 import java.util.stream.Collectors
 import kotlin.concurrent.fixedRateTimer
 
-val sets = listOf(
-    "High card, 9",
-    "High card, 10",
-    "High card, J",
-    "High card, Q",
-    "High card, K",
-    "High card, A",
-    "Pair of 9s",
-    "Pair of 10s",
-    "Pair of Js",
-    "Pair of Qs",
-    "Pair of Ks",
-    "Pair of As",
-    "Two pair, 10s and 9s",
-    "Two pair, Js and 9s",
-    "Two pair, Js and 10s",
-    "Two pair, Qs and 9s",
-    "Two pair, Qs and 10s",
-    "Two pair, Qs and Js",
-    "Two pair, Ks and 9s",
-    "Two pair, Ks and 10s",
-    "Two pair, Ks and Js",
-    "Two pair, Ks and Qs",
-    "Two pair, As and 9s",
-    "Two pair, As and 10s",
-    "Two pair, As and Js",
-    "Two pair, As and Qs",
-    "Two pair, As and Ks",
-    "Small straight (9-K)",
-    "Big straight (10-A)",
-    "Great straight (9-A)",
-    "Three of a kind, 9s",
-    "Three of a kind, 10s",
-    "Three of a kind, Js",
-    "Three of a kind, Qs",
-    "Three of a kind, Ks",
-    "Three of a kind, As",
-    "Full house, 9s over 10s",
-    "Full house, 9s over Js",
-    "Full house, 9s over Qs",
-    "Full house, 9s over Ks",
-    "Full house, 9s over As",
-    "Full house, 10s over 9s",
-    "Full house, 10s over Js",
-    "Full house, 10s over Qs",
-    "Full house, 10s over Ks",
-    "Full house, 10s over As",
-    "Full house, Js over 9s",
-    "Full house, Js over 10s",
-    "Full house, Js over Qs",
-    "Full house, Js over Ks",
-    "Full house, Js over As",
-    "Full house, Qs over 9s",
-    "Full house, Qs over 10s",
-    "Full house, Qs over Js",
-    "Full house, Qs over Ks",
-    "Full house, Qs over As",
-    "Full house, Ks over 9s",
-    "Full house, Ks over 10s",
-    "Full house, Ks over Js",
-    "Full house, Ks over Qs",
-    "Full house, Ks over As",
-    "Full house, As over 9s",
-    "Full house, As over 10s",
-    "Full house, As over Js",
-    "Full house, As over Qs",
-    "Full house, As over Ks",
-    "Flush ♣",
-    "Flush ♦",
-    "Flush ♥",
-    "Flush ♠",
-    "Four of a kind, 9s",
-    "Four of a kind, 10s",
-    "Four of a kind, Js",
-    "Four of a kind, Qs",
-    "Four of a kind, Ks",
-    "Four of a kind, As",
-    "Small straight flush (9-K) ♣",
-    "Small straight flush (9-K) ♦",
-    "Small straight flush (9-K) ♥",
-    "Small straight flush (9-K) ♠",
-    "Big straight flush (10-A) ♣",
-    "Big straight flush (10-A) ♦",
-    "Big straight flush (10-A) ♥",
-    "Big straight flush (10-A) ♠",
-    "Great straight flush (9-A) ♣",
-    "Great straight flush (9-A) ♦",
-    "Great straight flush (9-A) ♥",
-    "Great straight flush (9-A) ♠"
-)
-
 class Card(val value: Int, val suit: Int) {}
 
 class Game : AppCompatActivity() {
@@ -415,7 +324,7 @@ class Game : AppCompatActivity() {
             return(cardsData)
         }
 
-        fun showOpenHand(hand: JSONArray, max: Int): String {
+        fun showOpenHand(hand: JSONArray, max: Int, set: Int = -1, setComplete: Boolean = false): String {
             var cardsData = ""
             val cardsList = ArrayList<Card>()
             for (j in 0 until hand.length()) {
@@ -424,7 +333,14 @@ class Game : AppCompatActivity() {
             val sortedList = cardsList.sortedWith(compareBy({ -it.value }, { -it.suit }))
             for (j in 0 until max) {
                 if (j < sortedList.size) {
-                    cardsData = cardsData.plus("<img class=\"openCard\" src=\"cards/cropped/${sortedList[j].value}${sortedList[j].suit}.png\">")
+                    val value = sortedList[j].value
+                    val suit = sortedList[j].suit
+                    val cardClass = when{
+                        set != -1 && checkIfContributes(value, suit, set) && setComplete -> "openCardSufficient"
+                        set != -1 && checkIfContributes(value, suit, set) && !setComplete ->"openCardInsufficient"
+                        else -> "openCardNeutral"
+                    }
+                    cardsData = cardsData.plus("<img class=\"$cardClass\" src=\"cards/cropped/$value$suit.png\">")
                 } else {
                     cardsData = cardsData.plus(emptyCardHTML)
                 }
@@ -477,11 +393,16 @@ class Game : AppCompatActivity() {
                 val activeNicknames = ArrayList<String>()
                 for (i in 0 until handsArray.length()) activeNicknames.add(handsArray.getJSONObject(i).getString("nickname"))
 
+                val historyArray = gameObject.getJSONArray("history")
+                val set = historyArray.getJSONObject(historyArray.length() - 3).getInt("action_id")
+                val setComplete = historyArray.getJSONObject(historyArray.length() - 2).getString("player") ==
+                        historyArray.getJSONObject(historyArray.length() - 1).getString("player")
+
                 for (i in 0 until playersArray.length()) {
                     val iNickname = playersArray.getJSONObject(i).getString("nickname")
                     val active = activeNicknames.contains(iNickname)
                     val cardsData =
-                        if (active) showOpenHand(handsArray.getJSONObject(activeNicknames.indexOf(iNickname)).getJSONArray("hand"), max)
+                        if (active) showOpenHand(handsArray.getJSONObject(activeNicknames.indexOf(iNickname)).getJSONArray("hand"), max, set, setComplete)
                         else showClosedHand(0, max)
                     if (nPlayers.mod(2) == 1 && i == nPlayers - 1) {
                         playersInfoData = playersInfoData.plus(makeFullTable(makeCell(

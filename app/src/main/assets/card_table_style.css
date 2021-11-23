@@ -30,6 +30,18 @@ img.emptyCard {
     opacity: 35%;
 }
 
+img.openCardInsufficient {
+    border-radius: 1.1vw;
+    border-opacity: 0%;
+    background-color: #EEA700;
+}
+
+img.openCardSufficient {
+    border-radius: 1.1vw;
+    border-opacity: 0%;
+    background-color: #6200EE;
+}
+
 body{
     background-color: #F5F5F5;
     margin: 0;
