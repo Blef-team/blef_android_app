@@ -3,19 +3,13 @@
 
 package app.blef.blef
 
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.view.inputmethod.InputMethodManager
-import android.widget.Button
-import android.widget.EditText
-import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import okhttp3.*
-import org.json.JSONObject
 import java.io.IOException
 
 class JoiningWithUuid : AppCompatActivity() {

@@ -12,7 +12,6 @@ import android.os.Handler
 import android.os.Looper
 import android.text.InputType
 import android.view.Gravity
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebView
