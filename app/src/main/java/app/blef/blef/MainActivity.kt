@@ -26,7 +26,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         val mHandler = Handler(Looper.getMainLooper())
-
         val message = MutableLiveData<String>()
 
         val pixelDensity = resources.displayMetrics.density
@@ -52,46 +51,7 @@ class MainActivity : AppCompatActivity() {
         pg.addView(headerText)
         pg.addView(playerFilter)
 
-        val sharedPref = this.getSharedPreferences("app.blef.blef.MAIN", Context.MODE_PRIVATE)
-        val lastGameUuid = sharedPref.getString("game_uuid", "")
-        val continueButton = findViewById<Button>(R.id.continueGame)
-
         val client = OkHttpClient()
-
-        if (lastGameUuid != "") {
-            val lastGameRequest = Request.Builder()
-                .url("https://n4p6oovxsg.execute-api.eu-west-2.amazonaws.com/games/$lastGameUuid")
-                .build()
-
-            client.newCall(lastGameRequest).enqueue(object : Callback {
-                override fun onFailure(call: Call, e: IOException) {
-                    e.printStackTrace()
-                }
-
-                override fun onResponse(call: Call, response: Response) {
-                    response.use {
-                        if (!response.isSuccessful) {
-                            sharedPref.edit().putString("game_uuid", "")
-                            mHandler.post{ continueButton.visibility = View.GONE }
-                        } else {
-                            val newMessage = response.body!!.string()
-                            if (JSONObject(newMessage).getString("status") == "Finished") {
-                                sharedPref.edit().putString("game_uuid", "").apply()
-                                mHandler.post{ continueButton.visibility = View.GONE }
-                            } else {
-                                val continueIntent = Intent(this@MainActivity, Game::class.java)
-                                    .putExtra("game_uuid", sharedPref.getString("game_uuid", null))
-                                mHandler.post{
-                                    continueButton.visibility = View.VISIBLE
-                                    continueButton.setOnClickListener {startActivity(continueIntent)}
-                                }
-                            }
-                        }
-                    }
-                }
-            })
-        }
-
         val request = Request.Builder()
             .url("https://n4p6oovxsg.execute-api.eu-west-2.amazonaws.com/games")
             .build()
@@ -203,5 +163,48 @@ class MainActivity : AppCompatActivity() {
         //}
 
         //startActivity(intent)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val mHandler = Handler(Looper.getMainLooper())
+        val client = OkHttpClient()
+        val sharedPref = this.getSharedPreferences("app.blef.blef.MAIN", Context.MODE_PRIVATE)
+        val lastGameUuid = sharedPref.getString("game_uuid", "")
+        val continueButton = findViewById<Button>(R.id.continueGame)
+
+        if (lastGameUuid != "") {
+            val lastGameRequest = Request.Builder()
+                .url("https://n4p6oovxsg.execute-api.eu-west-2.amazonaws.com/games/$lastGameUuid")
+                .build()
+
+            client.newCall(lastGameRequest).enqueue(object : Callback {
+                override fun onFailure(call: Call, e: IOException) {
+                    e.printStackTrace()
+                }
+
+                override fun onResponse(call: Call, response: Response) {
+                    response.use {
+                        if (!response.isSuccessful) {
+                            sharedPref.edit().putString("game_uuid", "")
+                            mHandler.post { continueButton.visibility = View.GONE }
+                        } else {
+                            val newMessage = response.body!!.string()
+                            if (JSONObject(newMessage).getString("status") == "Finished") {
+                                sharedPref.edit().putString("game_uuid", "").apply()
+                                mHandler.post { continueButton.visibility = View.GONE }
+                            } else {
+                                val continueIntent = Intent(this@MainActivity, Game::class.java)
+                                    .putExtra("game_uuid", sharedPref.getString("game_uuid", null))
+                                mHandler.post {
+                                    continueButton.visibility = View.VISIBLE
+                                    continueButton.setOnClickListener { startActivity(continueIntent) }
+                                }
+                            }
+                        }
+                    }
+                }
+            })
+        }
     }
 }
