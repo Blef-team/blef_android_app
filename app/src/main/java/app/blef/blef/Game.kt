@@ -750,14 +750,5 @@ class Game : AppCompatActivity() {
             if (hasWindowFocus() && gameFinished.value == false && updateOnHold.value == false) updateGame()
         }
     }
-
-    override fun onBackPressed() {
-        startActivity(Intent(this@Game, MainActivity::class.java))
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        startActivity(Intent(this@Game, MainActivity::class.java))
-        return(true)
-    }
 }
 
