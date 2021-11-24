@@ -26,8 +26,6 @@ class JoiningWithUuid : AppCompatActivity() {
         val linkData: Uri? = intent?.data
         val gameUuid = linkData?.toString()?.removePrefix("https://www.blef.app/")
 
-        val sharedPref = this.getSharedPreferences("app.blef.blef.MAIN", Context.MODE_PRIVATE)
-
         val mHandler = Handler(Looper.getMainLooper())
         val client = OkHttpClient()
         val request = Request.Builder()
@@ -35,32 +33,20 @@ class JoiningWithUuid : AppCompatActivity() {
             .build()
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
-                val intent = Intent(this@JoiningWithUuid, MainActivity::class.java).apply {
-                    putExtra("reason", "Invite failed")
-                }
+                val intent = Intent(this@JoiningWithUuid, MainActivity::class.java)
+                    .putExtra("reason", "Invite failed")
                 mHandler.post{startActivity(intent)}
             }
             override fun onResponse(call: Call, response: Response) {
                 response.use {
                     if (!response.isSuccessful) {
-                        val intent = Intent(this@JoiningWithUuid, MainActivity::class.java).apply {
-                            putExtra("reason", "Invite failed")
-                        }
+                        val intent = Intent(this@JoiningWithUuid, MainActivity::class.java)
+                            .putExtra("reason", "Invite failed")
                         mHandler.post{startActivity(intent)}
                     } else {
-                        if (sharedPref.getString("game_uuid", null) == gameUuid) {
-                            val intent = Intent(this@JoiningWithUuid, Game::class.java).apply {
-                                putExtra("game_uuid", sharedPref.getString("game_uuid", null))
-                                putExtra("player_uuid", sharedPref.getString("player_uuid", null))
-                                putExtra("nickname", sharedPref.getString("nickname", null))
-                            }
-                            mHandler.post{startActivity(intent)}
-                        } else {
-                            val intent = Intent(this@JoiningWithUuid, Game::class.java).apply {
-                                putExtra("game_uuid", gameUuid)
-                            }
-                            mHandler.post{startActivity(intent)}
-                        }
+                        val intent = Intent(this@JoiningWithUuid, Game::class.java)
+                            .putExtra("game_uuid", gameUuid)
+                        mHandler.post{startActivity(intent)}
                     }
                 }
             }

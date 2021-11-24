@@ -44,16 +44,12 @@ class Game : AppCompatActivity() {
         }
 
         val gameUuid = intent.getStringExtra("game_uuid").toString().lowercase()
-        var playerUuid = intent.getStringExtra("player_uuid")
-        var nickname = intent.getStringExtra("nickname")
-
         val sharedPref = this.getSharedPreferences("app.blef.blef.MAIN", Context.MODE_PRIVATE)
-        with (sharedPref.edit()) {
-            putString("game_uuid", gameUuid)
-            putString("player_uuid", playerUuid)
-            putString("nickname", nickname)
-            apply()
-        }
+        sharedPref.edit().putString("game_uuid", gameUuid).apply()
+        val sharedPrefPlayerUuid = this.getSharedPreferences("app.blef.blef.PLAYER_UUID", Context.MODE_PRIVATE)
+        var playerUuid = sharedPrefPlayerUuid.getString(gameUuid, null)
+        val sharedPrefNickname = this.getSharedPreferences("app.blef.blef.NICKNAME", Context.MODE_PRIVATE)
+        var nickname = sharedPrefNickname.getString(gameUuid, null)
 
         class ProperMutableLiveData<T> : MutableLiveData<T>() {
             override fun setValue(value: T?) {
@@ -634,12 +630,9 @@ class Game : AppCompatActivity() {
                             val jsonBody = JSONObject(response.body!!.string())
                             playerUuid = jsonBody.getString("player_uuid")
                             nickname = tryingNickname
-                            with (sharedPref.edit()) {
-                                putString("player_uuid", playerUuid)
-                                putString("preferred_nickname", rawNickname)
-                                putString("nickname", nickname)
-                                apply()
-                            }
+                            sharedPref.edit().putString("preferred_nickname", rawNickname).apply()
+                            sharedPrefPlayerUuid.edit().putString(gameUuid, playerUuid).apply()
+                            sharedPrefNickname.edit().putString(gameUuid, nickname).apply()
                         }
                     }
                 }

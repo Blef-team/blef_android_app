@@ -72,13 +72,13 @@ class Creating : AppCompatActivity() {
                                         if (!response.isSuccessful) {
                                             showEngineError(R.id.activity_creating, response)
                                         } else {
-                                            val jsonBody2 = JSONObject(response.body!!.string())
-                                            val playerUuid = jsonBody2.getString("player_uuid")
-                                            val intent = Intent(this@Creating, Game::class.java).apply {
-                                                putExtra("game_uuid", gameUuid)
-                                                putExtra("player_uuid", playerUuid)
-                                                putExtra("nickname", nickname)
-                                            }
+                                            val playerUuid = JSONObject(response.body!!.string()).getString("player_uuid")
+                                            sharedPref.edit().putString("preferred_nickname", rawNickname)
+                                            this@Creating.getSharedPreferences("app.blef.blef.PLAYER_UUID", Context.MODE_PRIVATE)
+                                                .edit().putString(gameUuid, playerUuid).apply()
+                                            this@Creating.getSharedPreferences("app.blef.blef.NICKNAME", Context.MODE_PRIVATE)
+                                                .edit().putString(gameUuid, nickname).apply()
+                                            val intent = Intent(this@Creating, Game::class.java).putExtra("game_uuid", gameUuid)
                                             mHandler.post{startActivity(intent)}
                                         }
                                     }

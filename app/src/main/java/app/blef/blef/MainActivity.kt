@@ -71,29 +71,16 @@ class MainActivity : AppCompatActivity() {
                 override fun onResponse(call: Call, response: Response) {
                     response.use {
                         if (!response.isSuccessful) {
-                            with (sharedPref.edit()) {
-                                putString("game_uuid", "")
-                                putString("player_uuid", "")
-                                putString("nickname", "")
-                                apply()
-                            }
+                            sharedPref.edit().putString("game_uuid", "")
                             mHandler.post{ continueButton.visibility = View.GONE }
                         } else {
                             val newMessage = response.body!!.string()
                             if (JSONObject(newMessage).getString("status") == "Finished") {
-                                with (sharedPref.edit()) {
-                                    putString("game_uuid", "")
-                                    putString("player_uuid", "")
-                                    putString("nickname", "")
-                                    apply()
-                                }
+                                sharedPref.edit().putString("game_uuid", "").apply()
                                 mHandler.post{ continueButton.visibility = View.GONE }
                             } else {
-                                val continueIntent = Intent(this@MainActivity, Game::class.java).apply {
-                                    putExtra("game_uuid", sharedPref.getString("game_uuid", null))
-                                    putExtra("player_uuid", sharedPref.getString("player_uuid", null))
-                                    putExtra("nickname", sharedPref.getString("nickname", null))
-                                }
+                                val continueIntent = Intent(this@MainActivity, Game::class.java)
+                                    .putExtra("game_uuid", sharedPref.getString("game_uuid", null))
                                 mHandler.post{
                                     continueButton.visibility = View.VISIBLE
                                     continueButton.setOnClickListener {startActivity(continueIntent)}
@@ -188,19 +175,9 @@ class MainActivity : AppCompatActivity() {
                     gameText.setPadding(0, 30, 0, 0)
                     gameText.text = "Room $room\n${getString(R.string.players)}: $playersText"
                     gameText.setOnClickListener {
-                        if (sharedPref.getString("game_uuid", null) == gameUuid) {
-                            val intent = Intent(this@MainActivity, Game::class.java).apply {
-                                putExtra("game_uuid", sharedPref.getString("game_uuid", null))
-                                putExtra("player_uuid", sharedPref.getString("player_uuid", null))
-                                putExtra("nickname", sharedPref.getString("nickname", null))
-                            }
-                            startActivity(intent)
-                        } else {
-                            val intent = Intent(this@MainActivity, Game::class.java).apply {
-                                putExtra("game_uuid", gameUuid)
-                            }
-                            startActivity(intent)
-                        }
+                        val intent = Intent(this@MainActivity, Game::class.java)
+                            .putExtra("game_uuid", gameUuid)
+                        startActivity(intent)
                     }
                     pg.addView(gameText, i + 2)
                 }
