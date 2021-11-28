@@ -555,7 +555,7 @@ class Game : AppCompatActivity() {
         inviteButton.height = adjustForDensity(80)
         inviteButton.layoutParams = verticalButtonParams
         inviteButton.setOnClickListener{
-            val link = "Join me for a game of Blef: https://www.blef.app/$gameUuid"
+            val link = "Join me for a game of Blef: https://www.blef.app/join.html?game_uuid=$gameUuid"
             val intent = Intent(Intent.ACTION_SEND)
             intent.type = "text/plain"
             intent.putExtra(Intent.EXTRA_TEXT, link)
