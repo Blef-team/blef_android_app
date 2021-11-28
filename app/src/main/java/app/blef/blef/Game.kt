@@ -531,6 +531,7 @@ class Game : AppCompatActivity() {
         confirmButton.height = adjustForDensity(80)
         confirmButton.setOnClickListener {
             sendAction(sets.indexOf(findViewById<PowerSpinnerView>(0).text))
+            findViewById<PowerSpinnerView>(0).dismiss()
         }
 
         val checkButton = MaterialButton(this@Game)
@@ -538,6 +539,7 @@ class Game : AppCompatActivity() {
         checkButton.height = adjustForDensity(80)
         checkButton.setOnClickListener {
             sendAction(88)
+            findViewById<PowerSpinnerView>(0).dismiss()
         }
 
         val startButton = MaterialButton(this@Game)
