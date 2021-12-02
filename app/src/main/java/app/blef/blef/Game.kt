@@ -607,7 +607,7 @@ class Game : AppCompatActivity() {
             .apply{setMargins(0, adjustForDensity(6), adjustForDensity(6), adjustForDensity(6))}
         typeNickname.inputType = InputType.TYPE_CLASS_TEXT
         typeNickname.setText(sharedPref.getString("preferred_nickname", ""))
-        typeNickname.hint = getString(R.string.nickname_ellipsis)
+        typeNickname.hint = getString(R.string.nickname_hint)
 
         val generateNickname = MaterialButton(this@Game)
         generateNickname.text = """🎲"""

@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">Blef</string>
-    <string name="button_send">View</string>
     <string name="nickname_prompt">Pick a nickname:</string>
     <string name="nickname_hint">Nickname...</string>
     <string name="create">Create</string>
@@ -15,15 +14,14 @@
     <string name="loading_game_info">Loading game info...</string>
     <string name="generate_nickname">🎲</string>
     <string name="confirm">Confirm</string>
-    <string name="start_game">Start game</string>
+    <string name="start_game">Start</string>
     <string name="send_invite">Send invite</string>
     <string name="join_me_for_a_game_of_blef">Join me for a game of Blef</string>
-    <string name="nickname_ellipsis">Nickname...</string>
     <string name="join">Join</string>
     <string name="go_to_current_round">Go to current round</string>
     <string name="make_public">Make public</string>
     <string name="make_private">Make private</string>
-    <string name="share_via">Share via</string>
+    <string name="share_via">Share via...</string>
     <string name="check">Check</string>
     <string name="check_in_history">Check</string>
     <string name="room">Room</string>
@@ -95,10 +93,10 @@
     <string name="set_63">Full house, As over Js</string>
     <string name="set_64">Full house, As over Qs</string>
     <string name="set_65">Full house, As over Ks</string>
-    <string name="set_66">Flush ♣</string>
-    <string name="set_67">Flush ♦</string>
-    <string name="set_68">Flush ♥</string>
-    <string name="set_69">Flush ♠</string>
+    <string name="set_66">Flush, ♣</string>
+    <string name="set_67">Flush, ♦</string>
+    <string name="set_68">Flush, ♥</string>
+    <string name="set_69">Flush, ♠</string>
     <string name="set_70">Four of a kind, 9s</string>
     <string name="set_71">Four of a kind, 10s</string>
     <string name="set_72">Four of a kind, Js</string>
