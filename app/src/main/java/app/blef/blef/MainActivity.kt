@@ -53,7 +53,7 @@ class MainActivity : AppCompatActivity() {
 
         val client = OkHttpClient()
         val request = Request.Builder()
-            .url("https://n4p6oovxsg.execute-api.eu-west-2.amazonaws.com/games")
+            .url(baseUrl)
             .build()
 
         fixedRateTimer("update_public_games", false, 0L, 1000) {
@@ -175,7 +175,7 @@ class MainActivity : AppCompatActivity() {
 
         if (lastGameUuid != "") {
             val lastGameRequest = Request.Builder()
-                .url("https://n4p6oovxsg.execute-api.eu-west-2.amazonaws.com/games/$lastGameUuid")
+                .url("$baseUrl/$lastGameUuid")
                 .build()
 
             client.newCall(lastGameRequest).enqueue(object : Callback {

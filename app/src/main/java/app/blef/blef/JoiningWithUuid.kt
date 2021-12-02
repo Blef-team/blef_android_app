@@ -25,7 +25,7 @@ class JoiningWithUuid : AppCompatActivity() {
             val mHandler = Handler(Looper.getMainLooper())
             val client = OkHttpClient()
             val request = Request.Builder()
-                .url("https://n4p6oovxsg.execute-api.eu-west-2.amazonaws.com/games/$gameUuid")
+                .url("$baseUrl/$gameUuid")
                 .build()
             client.newCall(request).enqueue(object : Callback {
                 override fun onFailure(call: Call, e: IOException) {

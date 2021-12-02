@@ -67,7 +67,6 @@ class Game : AppCompatActivity() {
 
         val mHandler = Handler(Looper.getMainLooper())
         val client = OkHttpClient()
-        val baseUrl = "https://n4p6oovxsg.execute-api.eu-west-2.amazonaws.com/games"
 
         val emptyCardHTML = "<img class=\"emptyCard\" src=\"cardEmpty2.png\">"
         val questionCardHTML = "<img class=\"questionCard\" src=\"cardQuestion.png\">"
@@ -621,7 +620,7 @@ class Game : AppCompatActivity() {
             val rawNickname = typeNickname.text.toString()
             val tryingNickname = rawNickname.replace(" ", "_")
             val request = Request.Builder()
-                .url("https://n4p6oovxsg.execute-api.eu-west-2.amazonaws.com/games/$gameUuid/join?nickname=$tryingNickname")
+                .url("$baseUrl/$gameUuid/join?nickname=$tryingNickname")
                 .build()
             client.newCall(request).enqueue(object : Callback {
                 override fun onFailure(call: Call, e: IOException) {

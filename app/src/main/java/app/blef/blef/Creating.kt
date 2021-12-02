@@ -46,7 +46,7 @@ class Creating : AppCompatActivity() {
             val mHandler = Handler(Looper.getMainLooper())
             val client = OkHttpClient()
             val request1 = Request.Builder()
-                .url("https://n4p6oovxsg.execute-api.eu-west-2.amazonaws.com/games/create")
+                .url("$baseUrl/create")
                 .build()
             client.newCall(request1).enqueue(object : Callback {
                 override fun onFailure(call: Call, e: IOException) {
@@ -61,7 +61,7 @@ class Creating : AppCompatActivity() {
                             val jsonBody1 = JSONObject(response.body!!.string())
                             val gameUuid = jsonBody1.getString("game_uuid")
                             val request2 = Request.Builder()
-                                .url("https://n4p6oovxsg.execute-api.eu-west-2.amazonaws.com/games/$gameUuid/join?nickname=$nickname")
+                                .url("$baseUrl/$gameUuid/join?nickname=$nickname")
                                 .build()
                             client.newCall(request2).enqueue(object : Callback {
                                 override fun onFailure(call: Call, e: IOException) {

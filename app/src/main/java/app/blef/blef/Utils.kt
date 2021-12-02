@@ -11,3 +11,5 @@ fun Activity.showEngineError(activity: Int, response: Response) {
     engineErrorBar.view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text).maxLines = 5
     engineErrorBar.show()
 }
+
+const val baseUrl = "https://n4p6oovxsg.execute-api.eu-west-2.amazonaws.com/games"
