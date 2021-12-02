@@ -1,7 +1,7 @@
 # Blef Android app
 > The Android app for the game of Blef
 
-This repository contains the Android Studio project and assets for the iOS game Blef. The app makes use of the Blef game engine API service.
+This repository contains the Android Studio project and assets for the Android game Blef. The app makes use of the Blef game engine API service.
 
 ### Game engine API service
 
