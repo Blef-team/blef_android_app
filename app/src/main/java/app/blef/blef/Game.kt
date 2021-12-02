@@ -735,13 +735,7 @@ class Game : AppCompatActivity() {
             }
 
             if (gameObject.getString("status") == "Finished") {
-                with (sharedPref.edit()) {
-                    putString("game_uuid", "")
-                    putString("player_uuid", "")
-                    putString("preferred_nickname", "")
-                    putString("nickname", "")
-                    apply()
-                }
+                sharedPref.edit().putString("game_uuid", "").apply()
             }
         })
 
