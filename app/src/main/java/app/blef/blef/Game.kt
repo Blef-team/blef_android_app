@@ -36,6 +36,7 @@ class Game : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_game)
+        val sets = Sets(this@Game)
 
         val pixelDensity = resources.displayMetrics.density
         fun adjustForDensity(raw: Int): Int {
@@ -289,8 +290,11 @@ class Game : AppCompatActivity() {
 
         fun generatePreStartGameInfo(gameObject: JSONObject, gi: LinearLayout) {
             val generalInfoData = makeInfoTable(
-                makeRow(makeLeftCell("Room"), makeRightCell(if (gameObject.getString("public") == "true") gameObject.getString("room") else "Private")),
-                makeRow(makeLeftCell("Admin"), makeRightCell(formatNickname(gameObject.getString("admin_nickname"), nickname)))
+                makeRow(
+                    makeLeftCell(getString(R.string.room)),
+                    makeRightCell(if (gameObject.getString("public") == "true") gameObject.getString("room") else getString(R.string.room_private))
+                ),
+                makeRow(makeLeftCell(getString(R.string.admin)), makeRightCell(formatNickname(gameObject.getString("admin_nickname"), nickname)))
             )
             generalInfo.loadDataWithBaseURL("file:///android_asset/", addOpenStyle(generalInfoData), "text/html", "UTF-8", null)
 
@@ -331,8 +335,8 @@ class Game : AppCompatActivity() {
                     val value = sortedList[j].value
                     val suit = sortedList[j].suit
                     val cardClass = when{
-                        set != -1 && checkIfContributes(value, suit, set) && setComplete -> "openCardSufficient"
-                        set != -1 && checkIfContributes(value, suit, set) && !setComplete ->"openCardInsufficient"
+                        set != -1 && sets.checkIfContributes(value, suit, set) && setComplete -> "openCardSufficient"
+                        set != -1 && sets.checkIfContributes(value, suit, set) && !setComplete ->"openCardInsufficient"
                         else -> "openCardNeutral"
                     }
                     cardsData = cardsData.plus("<img class=\"$cardClass\" src=\"cards/cropped/$value$suit.png\">")
@@ -442,7 +446,7 @@ class Game : AppCompatActivity() {
                     if (iAction <= 88) {
                         historyInfoData = historyInfoData.plus(makeRow(
                             makeLeftCell(formatNickname(iNickname, nickname)),
-                            makeRightCell(if (iAction <= 87) sets[iAction] else "Check")
+                            makeRightCell(if (iAction <= 87) sets.sets[iAction] else getString(R.string.check_in_history))
                         ))
                     }
                 }
@@ -527,15 +531,15 @@ class Game : AppCompatActivity() {
         verticalButtonParams.setMargins(0, 0, 0, adjustForDensity(6))
 
         val confirmButton = MaterialButton(this@Game)
-        confirmButton.text = "Confirm"
+        confirmButton.text = getString(R.string.confirm)
         confirmButton.height = adjustForDensity(80)
         confirmButton.setOnClickListener {
-            sendAction(sets.indexOf(findViewById<PowerSpinnerView>(0).text))
+            sendAction(sets.sets.indexOf(findViewById<PowerSpinnerView>(0).text))
             findViewById<PowerSpinnerView>(0).dismiss()
         }
 
         val checkButton = MaterialButton(this@Game)
-        checkButton.text = "Check"
+        checkButton.text = getString(R.string.check)
         checkButton.height = adjustForDensity(80)
         checkButton.setOnClickListener {
             sendAction(88)
@@ -544,22 +548,22 @@ class Game : AppCompatActivity() {
 
         val startButton = MaterialButton(this@Game)
         startButton.tag = "start"
-        startButton.text = "Start game"
+        startButton.text = getString(R.string.start_game)
         startButton.height = adjustForDensity(80)
         startButton.layoutParams = verticalButtonParams
         startButton.setOnClickListener{start()}
 
         val inviteButton = MaterialButton(this@Game)
         inviteButton.tag = "inviteButton"
-        inviteButton.text = "Send invite"
+        inviteButton.text = getString(R.string.send_invite)
         inviteButton.height = adjustForDensity(80)
         inviteButton.layoutParams = verticalButtonParams
         inviteButton.setOnClickListener{
-            val link = "Join me for a game of Blef: https://www.blef.app/join.html?game_uuid=$gameUuid"
+            val link = "${getString(R.string.join_me_for_a_game_of_blef)}: https://www.blef.app/join.html?game_uuid=$gameUuid"
             val intent = Intent(Intent.ACTION_SEND)
             intent.type = "text/plain"
             intent.putExtra(Intent.EXTRA_TEXT, link)
-            startActivity(Intent.createChooser(intent, "Share via"))
+            startActivity(Intent.createChooser(intent, getString(R.string.share_via)))
         }
 
         val publicPrivateButton = MaterialButton(this@Game)
@@ -580,7 +584,7 @@ class Game : AppCompatActivity() {
             }
             betChooser.apply {
                 setSpinnerAdapter(DefaultSpinnerAdapter(betChooser))
-                setItems(sets.subList(lastActionId + 1, 88))
+                setItems(sets.sets.subList(lastActionId + 1, 88))
                 selectItemByIndex(0)
                 lifecycleOwner = this@Game
             }
@@ -603,10 +607,10 @@ class Game : AppCompatActivity() {
             .apply{setMargins(0, adjustForDensity(6), adjustForDensity(6), adjustForDensity(6))}
         typeNickname.inputType = InputType.TYPE_CLASS_TEXT
         typeNickname.setText(sharedPref.getString("preferred_nickname", ""))
-        typeNickname.hint = "Nickname..."
+        typeNickname.hint = getString(R.string.nickname_ellipsis)
 
         val generateNickname = MaterialButton(this@Game)
-        generateNickname.text = "\uD83C\uDFB2"
+        generateNickname.text = """🎲"""
         generateNickname.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, adjustForDensity(80), 3f)
             .apply{setMargins(adjustForDensity(6), adjustForDensity(6), 0, adjustForDensity(6))}
         generateNickname.setOnClickListener {
@@ -641,7 +645,7 @@ class Game : AppCompatActivity() {
         }
 
         val confirmJoin = MaterialButton(this@Game)
-        confirmJoin.text = "Join"
+        confirmJoin.text = getString(R.string.join)
         confirmJoin.height = adjustForDensity(80)
         confirmJoin.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply{
             setMargins(0, 0, 0, adjustForDensity(6))
@@ -659,7 +663,7 @@ class Game : AppCompatActivity() {
 
         val updateButton = MaterialButton(this@Game)
         updateButton.tag = "update"
-        updateButton.text = "Go to current round"
+        updateButton.text = getString(R.string.go_to_current_round)
         updateButton.height = adjustForDensity(80)
         updateButton.layoutParams = singleButtonParams
         updateButton.setOnClickListener{hardUpdateGame()}
@@ -696,11 +700,11 @@ class Game : AppCompatActivity() {
                     ll.addView(startButton)
                     if (gameObject.getString("public") == "false") {
                         publicPrivateButton.tag = "make_public"
-                        publicPrivateButton.text = "Make public"
+                        publicPrivateButton.text = getString(R.string.make_public)
                         publicPrivateButton.setOnClickListener{makePublic()}
                     } else {
                         publicPrivateButton.tag = "make_private"
-                        publicPrivateButton.text = "Make private"
+                        publicPrivateButton.text = getString(R.string.make_private)
                         publicPrivateButton.setOnClickListener{makePrivate()}
                     }
                     ll.addView(publicPrivateButton)

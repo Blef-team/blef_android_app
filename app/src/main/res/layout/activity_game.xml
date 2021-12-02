@@ -22,7 +22,7 @@
             android:layout_marginTop="0dp"
             android:layout_marginEnd="0dp"
             android:orientation="vertical"
-            android:text="Loading game info..."/>
+            android:text="@string/loading_game_info"/>
     </ScrollView>
 
     <LinearLayout

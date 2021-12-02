@@ -36,17 +36,17 @@ class MainActivity : AppCompatActivity() {
         val redirectReason = intent.getStringExtra("reason").toString()
         if (redirectReason == "Invite failed") {
             AlertDialog.Builder(this)
-                .setMessage("Invite link failed")
+                .setMessage(getString(R.string.invite_link_failed))
                 .setPositiveButton("OK", null)
                 .show()
         }
 
         val pg = findViewById<LinearLayout>(R.id.publicGames)
         val headerText = TextView(this@MainActivity)
-        headerText.text = "Public games (tap to join):"
+        headerText.text = getString(R.string.public_games)
         val playerFilter = EditText(this@MainActivity)
         playerFilter.height = adjustForDensity(60)
-        playerFilter.hint = "Filter room numbers / players..."
+        playerFilter.hint = getString(R.string.filter_public_games)
         playerFilter.tag = "player_filter"
         pg.addView(headerText)
         pg.addView(playerFilter)
@@ -133,7 +133,7 @@ class MainActivity : AppCompatActivity() {
 
                     val gameText = TextView(this@MainActivity)
                     gameText.setPadding(0, 30, 0, 0)
-                    gameText.text = "Room $room\n${getString(R.string.players)}: $playersText"
+                    gameText.text = "${getString(R.string.room)} $room\n${getString(R.string.players)}: $playersText"
                     gameText.setOnClickListener {
                         val intent = Intent(this@MainActivity, Game::class.java)
                             .putExtra("game_uuid", gameUuid)
