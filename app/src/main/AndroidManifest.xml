@@ -9,6 +9,7 @@
     <application
         android:allowBackup="true"
         android:label="@string/app_name"
+        android:icon="@mipmap/blef_icon"
         android:roundIcon="@mipmap/blef_icon"
         android:supportsRtl="true"
         android:theme="@style/Theme.Blef">
