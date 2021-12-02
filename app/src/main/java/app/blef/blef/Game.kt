@@ -30,7 +30,7 @@ import java.io.IOException
 import java.util.stream.Collectors
 import kotlin.concurrent.fixedRateTimer
 
-class Card(val value: Int, val suit: Int) {}
+class Card(val value: Int, val suit: Int)
 
 class Game : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -314,11 +314,7 @@ class Game : AppCompatActivity() {
         fun showClosedHand(handSize: Int, max: Int): String {
             var cardsData = ""
             for (j in 0 until max) {
-                if (j < handSize) {
-                    cardsData = cardsData.plus(questionCardHTML)
-                } else {
-                    cardsData = cardsData.plus(emptyCardHTML)
-                }
+                cardsData = if (j < handSize) cardsData.plus(questionCardHTML) else cardsData.plus(emptyCardHTML)
             }
             return(cardsData)
         }
@@ -331,7 +327,7 @@ class Game : AppCompatActivity() {
             }
             val sortedList = cardsList.sortedWith(compareBy({ -it.value }, { -it.suit }))
             for (j in 0 until max) {
-                if (j < sortedList.size) {
+                cardsData = if (j < sortedList.size) {
                     val value = sortedList[j].value
                     val suit = sortedList[j].suit
                     val cardClass = when{
@@ -339,9 +335,9 @@ class Game : AppCompatActivity() {
                         set != -1 && sets.checkIfContributes(value, suit, set) && !setComplete ->"openCardInsufficient"
                         else -> "openCardNeutral"
                     }
-                    cardsData = cardsData.plus("<img class=\"$cardClass\" src=\"cards/cropped/$value$suit.png\">")
+                    cardsData.plus("<img class=\"$cardClass\" src=\"cards/cropped/$value$suit.png\">")
                 } else {
-                    cardsData = cardsData.plus(emptyCardHTML)
+                    cardsData.plus(emptyCardHTML)
                 }
             }
             return(cardsData)
@@ -354,64 +350,68 @@ class Game : AppCompatActivity() {
             val nPlayers = playersArray.length()
             val handsArray = gameObject.getJSONArray("hands")
 
-            if (handsArray.length() == 0) {
-                for (i in 0 until nPlayers) {
-                    val iNickname = playersArray.getJSONObject(i).getString("nickname")
-                    val iCards = playersArray.getJSONObject(i).getInt("n_cards")
-                    val cardsData = showClosedHand(iCards, max)
-                    if (nPlayers.mod(2) == 1 && i == nPlayers - 1) {
-                        playersInfoData = playersInfoData.plus(makeFullTable(makeCell(
-                            (formatNickname(iNickname, nickname, iCards > 0)).plus("<br>").plus(cardsData)
-                        )))
-                    } else {
-                        playersInfoData = playersInfoData.plus(makeHalfTable(makeCell(
-                            (formatNickname(iNickname, nickname, iCards > 0)).plus("<br>").plus(cardsData)
-                        )))
-                        if (i.mod(2) == 1) playersInfoData = playersInfoData.plus("<br>")
+            when {
+                handsArray.length() == 0 -> {
+                    for (i in 0 until nPlayers) {
+                        val iNickname = playersArray.getJSONObject(i).getString("nickname")
+                        val iCards = playersArray.getJSONObject(i).getInt("n_cards")
+                        val cardsData = showClosedHand(iCards, max)
+                        if (nPlayers.mod(2) == 1 && i == nPlayers - 1) {
+                            playersInfoData = playersInfoData.plus(makeFullTable(makeCell(
+                                (formatNickname(iNickname, nickname, iCards > 0)).plus("<br>").plus(cardsData)
+                            )))
+                        } else {
+                            playersInfoData = playersInfoData.plus(makeHalfTable(makeCell(
+                                (formatNickname(iNickname, nickname, iCards > 0)).plus("<br>").plus(cardsData)
+                            )))
+                            if (i.mod(2) == 1) playersInfoData = playersInfoData.plus("<br>")
+                        }
                     }
                 }
-            } else if (handsArray.length() == 1) {
-                for (i in 0 until playersArray.length()) {
-                    val iNickname = playersArray.getJSONObject(i).getString("nickname")
-                    val iCards = playersArray.getJSONObject(i).getInt("n_cards")
-                    val cardsData =
-                        if (iNickname == nickname) showOpenHand(handsArray.getJSONObject(0).getJSONArray("hand"), max)
-                        else showClosedHand(iCards, max)
-                    if (nPlayers.mod(2) == 1 && i == nPlayers - 1) {
-                        playersInfoData = playersInfoData.plus(makeFullTable(makeCell(
-                            (formatNickname(iNickname, nickname, iCards > 0)).plus("<br>").plus(cardsData)
-                        )))
-                    } else {
-                        playersInfoData = playersInfoData.plus(makeHalfTable(makeCell(
-                            (formatNickname(iNickname, nickname, iCards > 0)).plus("<br>").plus(cardsData)
-                        )))
-                        if (i.mod(2) == 1) playersInfoData = playersInfoData.plus("<br>")
+                handsArray.length() == 1 -> {
+                    for (i in 0 until playersArray.length()) {
+                        val iNickname = playersArray.getJSONObject(i).getString("nickname")
+                        val iCards = playersArray.getJSONObject(i).getInt("n_cards")
+                        val cardsData =
+                            if (iNickname == nickname) showOpenHand(handsArray.getJSONObject(0).getJSONArray("hand"), max)
+                            else showClosedHand(iCards, max)
+                        if (nPlayers.mod(2) == 1 && i == nPlayers - 1) {
+                            playersInfoData = playersInfoData.plus(makeFullTable(makeCell(
+                                (formatNickname(iNickname, nickname, iCards > 0)).plus("<br>").plus(cardsData)
+                            )))
+                        } else {
+                            playersInfoData = playersInfoData.plus(makeHalfTable(makeCell(
+                                (formatNickname(iNickname, nickname, iCards > 0)).plus("<br>").plus(cardsData)
+                            )))
+                            if (i.mod(2) == 1) playersInfoData = playersInfoData.plus("<br>")
+                        }
                     }
                 }
-            } else {
-                val activeNicknames = ArrayList<String>()
-                for (i in 0 until handsArray.length()) activeNicknames.add(handsArray.getJSONObject(i).getString("nickname"))
+                else -> {
+                    val activeNicknames = ArrayList<String>()
+                    for (i in 0 until handsArray.length()) activeNicknames.add(handsArray.getJSONObject(i).getString("nickname"))
 
-                val historyArray = gameObject.getJSONArray("history")
-                val set = historyArray.getJSONObject(historyArray.length() - 3).getInt("action_id")
-                val setComplete = historyArray.getJSONObject(historyArray.length() - 2).getString("player") ==
-                        historyArray.getJSONObject(historyArray.length() - 1).getString("player")
+                    val historyArray = gameObject.getJSONArray("history")
+                    val set = historyArray.getJSONObject(historyArray.length() - 3).getInt("action_id")
+                    val setComplete = historyArray.getJSONObject(historyArray.length() - 2).getString("player") ==
+                            historyArray.getJSONObject(historyArray.length() - 1).getString("player")
 
-                for (i in 0 until playersArray.length()) {
-                    val iNickname = playersArray.getJSONObject(i).getString("nickname")
-                    val active = activeNicknames.contains(iNickname)
-                    val cardsData =
-                        if (active) showOpenHand(handsArray.getJSONObject(activeNicknames.indexOf(iNickname)).getJSONArray("hand"), max, set, setComplete)
-                        else showClosedHand(0, max)
-                    if (nPlayers.mod(2) == 1 && i == nPlayers - 1) {
-                        playersInfoData = playersInfoData.plus(makeFullTable(makeCell(
-                            (formatNickname(iNickname, nickname, active)).plus("<br>").plus(cardsData)
-                        )))
-                    } else {
-                        playersInfoData = playersInfoData.plus(makeHalfTable(makeCell(
-                            (formatNickname(iNickname, nickname, active)).plus("<br>").plus(cardsData)
-                        )))
-                        if (i.mod(2) == 1) playersInfoData = playersInfoData.plus("<br>")
+                    for (i in 0 until playersArray.length()) {
+                        val iNickname = playersArray.getJSONObject(i).getString("nickname")
+                        val active = activeNicknames.contains(iNickname)
+                        val cardsData =
+                            if (active) showOpenHand(handsArray.getJSONObject(activeNicknames.indexOf(iNickname)).getJSONArray("hand"), max, set, setComplete)
+                            else showClosedHand(0, max)
+                        if (nPlayers.mod(2) == 1 && i == nPlayers - 1) {
+                            playersInfoData = playersInfoData.plus(makeFullTable(makeCell(
+                                (formatNickname(iNickname, nickname, active)).plus("<br>").plus(cardsData)
+                            )))
+                        } else {
+                            playersInfoData = playersInfoData.plus(makeHalfTable(makeCell(
+                                (formatNickname(iNickname, nickname, active)).plus("<br>").plus(cardsData)
+                            )))
+                            if (i.mod(2) == 1) playersInfoData = playersInfoData.plus("<br>")
+                        }
                     }
                 }
             }
@@ -679,20 +679,24 @@ class Game : AppCompatActivity() {
                 }
                 gameObject.getString("cp_nickname") == nickname -> {
                     confirmOrCheck.removeAllViews()
-                    if (gameObject.getJSONArray("history").length() == 0) {
-                        ll.addView(makeBetChooser(-1))
-                        confirmOrCheck.addView(confirmButton)
-                        confirmButton.layoutParams = singleButtonParams
-                    } else if (history.getJSONObject(history.length() - 1).getInt("action_id") in 0..86) {
-                        val lastAction = history.getJSONObject(history.length() - 1).getInt("action_id")
-                        ll.addView(makeBetChooser(lastAction))
-                        confirmOrCheck.addView(confirmButton)
-                        confirmOrCheck.addView(checkButton)
-                        confirmButton.layoutParams = leftButtonParams
-                        checkButton.layoutParams = rightButtonParams
-                    } else {
-                        confirmOrCheck.addView(checkButton)
-                        checkButton.layoutParams = singleButtonParams
+                    when {
+                        gameObject.getJSONArray("history").length() == 0 -> {
+                            ll.addView(makeBetChooser(-1))
+                            confirmOrCheck.addView(confirmButton)
+                            confirmButton.layoutParams = singleButtonParams
+                        }
+                        history.getJSONObject(history.length() - 1).getInt("action_id") in 0..86 -> {
+                            val lastAction = history.getJSONObject(history.length() - 1).getInt("action_id")
+                            ll.addView(makeBetChooser(lastAction))
+                            confirmOrCheck.addView(confirmButton)
+                            confirmOrCheck.addView(checkButton)
+                            confirmButton.layoutParams = leftButtonParams
+                            checkButton.layoutParams = rightButtonParams
+                        }
+                        else -> {
+                            confirmOrCheck.addView(checkButton)
+                            checkButton.layoutParams = singleButtonParams
+                        }
                     }
                     ll.addView(confirmOrCheck)
                 }
