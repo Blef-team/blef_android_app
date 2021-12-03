@@ -51,33 +51,19 @@ class MainActivity : AppCompatActivity() {
         pg.addView(headerText)
         pg.addView(playerFilter)
 
-        val client = OkHttpClient()
-        val request = Request.Builder()
-            .url(baseUrl)
-            .build()
-
         fixedRateTimer("update_public_games", false, 0L, 1000) {
             if (hasWindowFocus()) {
-                client.newCall(request).enqueue(object : Callback {
-                    override fun onFailure(call: Call, e: IOException) {
-                        e.printStackTrace()
-                    }
-
-                    override fun onResponse(call: Call, response: Response) {
-                        response.use {
-                            if (!response.isSuccessful) {
-                                showEngineError(R.id.activity_main, response)
-                            } else {
-                                val newMessage = response.body!!.string()
-                                if (newMessage != message.value.toString()) {
-                                    mHandler.post{
-                                        message.setValue(newMessage)
-                                    }
-                                }
-                            }
+                queryEngine(
+                    R.id.activity_main,
+                    baseUrl
+                ) { response ->
+                    val newMessage = response.body!!.string()
+                    if (newMessage != message.value.toString()) {
+                        mHandler.post{
+                            message.setValue(newMessage)
                         }
                     }
-                })
+                }
             }
         }
 

@@ -70,97 +70,56 @@ class Game : AppCompatActivity() {
         gameFinished.value = false
 
         val mHandler = Handler(Looper.getMainLooper())
-        val client = OkHttpClient()
 
         val emptyCardHTML = "<img class=\"emptyCard\" src=\"cardEmpty2.png\">"
         val questionCardHTML = "<img class=\"questionCard\" src=\"cardQuestion.png\">"
 
         fun updateGame() {
-            val queryUrl = baseUrl + if (playerUuid != null)  "/$gameUuid?player_uuid=$playerUuid" else "/$gameUuid"
-            val request = Request.Builder()
-                .url(queryUrl)
-                .build()
+            queryEngine(
+                R.id.activity_game,
+                baseUrl + if (playerUuid != null)  "/$gameUuid?player_uuid=$playerUuid" else "/$gameUuid",
+            ) { response ->
+                val newMessage = response.body!!.string()
+                if (JsonParser().parse(newMessage) != JsonParser().parse(message.value.toString())) {
+                    val newJson = JSONObject(newMessage)
+                    if (newJson.getString("round_number").toInt() <= 1 || // hard update if game not started or in first round
+                        (newJson.getString("status") == "Running" && // hard update if game has not progressed to another round and has not finished
+                                newJson.getString("round_number") == JSONObject(message.value.toString()).getString("round_number"))) {
+                        mHandler.post{message.setValue(newMessage)}
+                    } else {
+                        if (newJson.getString("status") == "Finished") mHandler.post{gameFinished.value = true}
+                        // Update only the current round
+                        val currentRound = JSONObject(message.value.toString()).getString("round_number")
 
-            client.newCall(request).enqueue(object : Callback {
-                override fun onFailure(call: Call, e: IOException) {
-                    e.printStackTrace()
-                }
-
-                override fun onResponse(call: Call, response: Response) {
-                    response.use {
-                        if (!response.isSuccessful) {
-                            showEngineError(R.id.activity_game, response)
-                        } else {
-                            val newMessage = response.body!!.string()
-                            if (JsonParser().parse(newMessage) != JsonParser().parse(message.value.toString())) {
-                                val newJson = JSONObject(newMessage)
-                                if (newJson.getString("round_number").toInt() <= 1 || // hard update if game not started or in first round
-                                    (newJson.getString("status") == "Running" && // hard update if game has not progressed to another round and has not finished
-                                    newJson.getString("round_number") == JSONObject(message.value.toString()).getString("round_number"))) {
-                                    mHandler.post{message.setValue(newMessage)}
-                                } else {
-                                    if (newJson.getString("status") == "Finished") mHandler.post{gameFinished.value = true}
-                                    // Update only the current round
-                                    val currentRound = JSONObject(message.value.toString()).getString("round_number")
-                                    val queryUrl2 = baseUrl + if (playerUuid != null)  "/$gameUuid?player_uuid=$playerUuid&round=$currentRound" else "/$gameUuid?round=$currentRound"
-                                    val request2 = Request.Builder()
-                                        .url(queryUrl2)
-                                        .build()
-
-                                    client.newCall(request2).enqueue(object : Callback {
-                                        override fun onFailure(call: Call, e: IOException) {
-                                            e.printStackTrace()
-                                        }
-
-                                        override fun onResponse(call: Call, response: Response) {
-                                            response.use {
-                                                if (!response.isSuccessful) {
-                                                    showEngineError(R.id.activity_game, response)
-                                                } else {
-                                                    val newMessage2 = response.body!!.string()
-                                                    mHandler.post{
-                                                        updateOnHold.value = true
-                                                        message.setValue(newMessage2)
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    })
-                                }
+                        queryEngine(
+                            R.id.activity_game,
+                            baseUrl + if (playerUuid != null)  "/$gameUuid?player_uuid=$playerUuid&round=$currentRound" else "/$gameUuid?round=$currentRound"
+                        ) { response2 ->
+                            val newMessage2 = response2.body!!.string()
+                            mHandler.post {
+                                updateOnHold.value = true
+                                message.setValue(newMessage2)
                             }
                         }
                     }
                 }
-            })
+
+            }
         }
 
         fun hardUpdateGame() {
-            val queryUrl = baseUrl + if (playerUuid != null)  "/$gameUuid?player_uuid=$playerUuid" else "/$gameUuid"
-            val request = Request.Builder()
-                .url(queryUrl)
-                .build()
-
-            client.newCall(request).enqueue(object : Callback {
-                override fun onFailure(call: Call, e: IOException) {
-                    e.printStackTrace()
-                }
-
-                override fun onResponse(call: Call, response: Response) {
-                    response.use {
-                        if (!response.isSuccessful) {
-                            showEngineError(R.id.activity_game, response)
-                        } else {
-                            val newMessage = response.body!!.string()
-                            if (newMessage != message.value.toString()) {
-                                mHandler.post{
-                                    updateOnHold.value = false
-                                    message.setValue(newMessage)
-                                }
-                            }
-                        }
+            queryEngine(
+                R.id.activity_game,
+                baseUrl + if (playerUuid != null)  "/$gameUuid?player_uuid=$playerUuid" else "/$gameUuid"
+            ) { response ->
+                val newMessage = response.body!!.string()
+                if (newMessage != message.value.toString()) {
+                    mHandler.post{
+                        updateOnHold.value = false
+                        message.setValue(newMessage)
                     }
                 }
-            })
+            }
         }
 
         fun updateGameIfEngineHappy(response: Response) {
@@ -173,48 +132,27 @@ class Game : AppCompatActivity() {
         }
 
         fun makePublic() {
-            val queryUrl = "$baseUrl/$gameUuid/make-public?admin_uuid=$playerUuid"
-            val request = Request.Builder()
-                .url(queryUrl)
-                .build()
-            client.newCall(request).enqueue(object : Callback{
-                override fun onFailure(call: Call, e: IOException) {
-                    e.printStackTrace()
-                }
-                override fun onResponse(call: Call, response: Response) {
-                    updateGameIfEngineHappy(response)
-                }
-            })
+            queryEngine(
+                R.id.activity_game,
+                "$baseUrl/$gameUuid/make-public?admin_uuid=$playerUuid",
+                ::updateGameIfEngineHappy
+            )
         }
 
         fun makePrivate() {
-            val queryUrl = "$baseUrl/$gameUuid/make-private?admin_uuid=$playerUuid"
-            val request = Request.Builder()
-                .url(queryUrl)
-                .build()
-            client.newCall(request).enqueue(object : Callback{
-                override fun onFailure(call: Call, e: IOException) {
-                    e.printStackTrace()
-                }
-                override fun onResponse(call: Call, response: Response) {
-                    updateGameIfEngineHappy(response)
-                }
-            })
+            queryEngine(
+                R.id.activity_game,
+                "$baseUrl/$gameUuid/make-private?admin_uuid=$playerUuid",
+                ::updateGameIfEngineHappy
+            )
         }
 
         fun start() {
-            val queryUrl = "$baseUrl/$gameUuid/start?admin_uuid=$playerUuid"
-            val request = Request.Builder()
-                .url(queryUrl)
-                .build()
-            client.newCall(request).enqueue(object : Callback{
-                override fun onFailure(call: Call, e: IOException) {
-                    e.printStackTrace()
-                }
-                override fun onResponse(call: Call, response: Response) {
-                    updateGameIfEngineHappy(response)
-                }
-            })
+            queryEngine(
+                R.id.activity_game,
+                "$baseUrl/$gameUuid/start?admin_uuid=$playerUuid",
+                ::updateGameIfEngineHappy
+            )
         }
 
         fun makeCell(s: String): String {
@@ -505,23 +443,17 @@ class Game : AppCompatActivity() {
         }
 
         fun sendAction(actionId: Int) {
-            val queryUrl = "$baseUrl/$gameUuid/play?player_uuid=$playerUuid&action_id=$actionId"
-            val request = Request.Builder()
-                .url(queryUrl)
-                .build()
-            client.newCall(request).enqueue(object : Callback{
-                override fun onFailure(call: Call, e: IOException) {
-                    e.printStackTrace()
+            queryEngine(
+                R.id.activity_game,
+                "$baseUrl/$gameUuid/play?player_uuid=$playerUuid&action_id=$actionId"
+            ) { response ->
+                val newMessage = response.body!!.string()
+                val putUpdateOnHold = JSONObject(newMessage).isNull("cp_nickname")
+                mHandler.post{
+                    updateOnHold.value = putUpdateOnHold
+                    message.setValue(newMessage)
                 }
-                override fun onResponse(call: Call, response: Response) {
-                    val newMessage = response.body!!.string()
-                    val putUpdateOnHold = JSONObject(newMessage).isNull("cp_nickname")
-                    mHandler.post{
-                        updateOnHold.value = putUpdateOnHold
-                        message.setValue(newMessage)
-                    }
-                }
-            })
+            }
         }
 
         val singleButtonParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
@@ -618,28 +550,18 @@ class Game : AppCompatActivity() {
         fun join() {
             val rawNickname = typeNickname.text.toString()
             val tryingNickname = rawNickname.replace(" ", "_")
-            val request = Request.Builder()
-                .url("$baseUrl/$gameUuid/join?nickname=$tryingNickname")
-                .build()
-            client.newCall(request).enqueue(object : Callback {
-                override fun onFailure(call: Call, e: IOException) {
-                    e.printStackTrace()
-                }
-                override fun onResponse(call: Call, response: Response) {
-                    response.use {
-                        if (!response.isSuccessful) {
-                            showEngineError(R.id.activity_game, response)
-                        } else {
-                            val jsonBody = JSONObject(response.body!!.string())
-                            playerUuid = jsonBody.getString("player_uuid")
-                            nickname = tryingNickname
-                            sharedPref.edit().putString("preferred_nickname", rawNickname).apply()
-                            sharedPrefPlayerUuid.edit().putString(gameUuid, playerUuid).apply()
-                            sharedPrefNickname.edit().putString(gameUuid, nickname).apply()
-                        }
-                    }
-                }
-            })
+
+            queryEngine(
+                R.id.activity_game,
+                "$baseUrl/$gameUuid/join?nickname=$tryingNickname"
+            ) { response ->
+                val jsonBody = JSONObject(response.body!!.string())
+                playerUuid = jsonBody.getString("player_uuid")
+                nickname = tryingNickname
+                sharedPref.edit().putString("preferred_nickname", rawNickname).apply()
+                sharedPrefPlayerUuid.edit().putString(gameUuid, playerUuid).apply()
+                sharedPrefNickname.edit().putString(gameUuid, nickname).apply()
+            }
         }
 
         val confirmJoin = BlefButton(this@Game)

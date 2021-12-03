@@ -94,7 +94,7 @@ class Sets(context: Context) {
         context.getString(R.string.set_87),
     )
 
-    val setContributors = listOf(
+    private val setContributors = listOf(
         // High card
         listOf("00", "01", "02", "03"),
         listOf("10", "11", "12", "13"),
