@@ -155,14 +155,6 @@ class MainActivity : AppCompatActivity() {
         })
 
         playerFilter.addTextChangedListener { generatePublicGames() }
-
-        //val intent = Intent(this@MainActivity, Game::class.java).apply {
-        //    putExtra("game_uuid", "")
-        //    putExtra("player_uuid", "")
-        //    putExtra("nickname", "")
-        //}
-
-        //startActivity(intent)
     }
 
     override fun onResume() {
