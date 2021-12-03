@@ -43,6 +43,10 @@ class Game : AppCompatActivity() {
             return((raw * pixelDensity).toInt())
         }
 
+        class BlefButton(context: Context): MaterialButton(context) {
+            init { height = adjustForDensity(80) }
+        }
+
         val gameUuid = intent.getStringExtra("game_uuid").toString().lowercase()
         val sharedPref = this.getSharedPreferences("app.blef.blef.MAIN", Context.MODE_PRIVATE)
         sharedPref.edit().putString("game_uuid", gameUuid).apply()
@@ -529,33 +533,29 @@ class Game : AppCompatActivity() {
         val verticalButtonParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
         verticalButtonParams.setMargins(0, 0, 0, adjustForDensity(6))
 
-        val confirmButton = MaterialButton(this@Game)
+        val confirmButton = BlefButton(this@Game)
         confirmButton.text = getString(R.string.confirm)
-        confirmButton.height = adjustForDensity(80)
         confirmButton.setOnClickListener {
             sendAction(sets.sets.indexOf(findViewById<PowerSpinnerView>(0).text))
             findViewById<PowerSpinnerView>(0).dismiss()
         }
 
-        val checkButton = MaterialButton(this@Game)
+        val checkButton = BlefButton(this@Game)
         checkButton.text = getString(R.string.check)
-        checkButton.height = adjustForDensity(80)
         checkButton.setOnClickListener {
             sendAction(88)
             findViewById<PowerSpinnerView>(0).dismiss()
         }
 
-        val startButton = MaterialButton(this@Game)
+        val startButton = BlefButton(this@Game)
         startButton.tag = "start"
         startButton.text = getString(R.string.start_game)
-        startButton.height = adjustForDensity(80)
         startButton.layoutParams = verticalButtonParams
         startButton.setOnClickListener{start()}
 
-        val inviteButton = MaterialButton(this@Game)
+        val inviteButton = BlefButton(this@Game)
         inviteButton.tag = "inviteButton"
         inviteButton.text = getString(R.string.send_invite)
-        inviteButton.height = adjustForDensity(80)
         inviteButton.layoutParams = verticalButtonParams
         inviteButton.setOnClickListener{
             val link = "${getString(R.string.join_me_for_a_game_of_blef)}: https://www.blef.app/join.html?game_uuid=$gameUuid"
@@ -565,8 +565,7 @@ class Game : AppCompatActivity() {
             startActivity(Intent.createChooser(intent, getString(R.string.share_via)))
         }
 
-        val publicPrivateButton = MaterialButton(this@Game)
-        publicPrivateButton.height = adjustForDensity(80)
+        val publicPrivateButton = BlefButton(this@Game)
         publicPrivateButton.layoutParams = verticalButtonParams
 
         fun makeBetChooser(lastActionId: Int): PowerSpinnerView {
@@ -643,9 +642,8 @@ class Game : AppCompatActivity() {
             })
         }
 
-        val confirmJoin = MaterialButton(this@Game)
+        val confirmJoin = BlefButton(this@Game)
         confirmJoin.text = getString(R.string.join)
-        confirmJoin.height = adjustForDensity(80)
         confirmJoin.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply{
             setMargins(0, 0, 0, adjustForDensity(6))
         }
@@ -660,10 +658,9 @@ class Game : AppCompatActivity() {
         typeOrGenerate.addView(typeNickname)
         typeOrGenerate.addView(generateNickname)
 
-        val updateButton = MaterialButton(this@Game)
+        val updateButton = BlefButton(this@Game)
         updateButton.tag = "update"
         updateButton.text = getString(R.string.go_to_current_round)
-        updateButton.height = adjustForDensity(80)
         updateButton.layoutParams = singleButtonParams
         updateButton.setOnClickListener{hardUpdateGame()}
 
