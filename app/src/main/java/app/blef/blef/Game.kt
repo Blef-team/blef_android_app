@@ -59,19 +59,10 @@ class Game : AppCompatActivity() {
         val sharedPrefNickname = this.getSharedPreferences("app.blef.blef.NICKNAME", Context.MODE_PRIVATE)
         var nickname = sharedPrefNickname.getString(gameUuid, null)
 
-        class ProperMutableLiveData<T> : MutableLiveData<T>() {
-            override fun setValue(value: T?) {
-                if (value != this.value) {
-                    super.setValue(value)
-                }
-            }
-        }
-        val message = ProperMutableLiveData<String>()
+        val message = MutableLiveData<String>()
         var handsTrigger = ""
-        val updateOnHold = MutableLiveData<Boolean>()
-        updateOnHold.value = false
-        val gameFinished = MutableLiveData<Boolean>()
-        gameFinished.value = false
+        var updateOnHold = false
+        var gameFinished = false
 
         val mHandler = Handler(Looper.getMainLooper())
 
@@ -91,7 +82,7 @@ class Game : AppCompatActivity() {
                                 newJson.getString("round_number") == JSONObject(message.value.toString()).getString("round_number"))) {
                         mHandler.post{message.setValue(newMessage)}
                     } else {
-                        if (newJson.getString("status") == GameStatuses.FINISHED) mHandler.post{gameFinished.value = true}
+                        if (newJson.getString("status") == GameStatuses.FINISHED) mHandler.post{gameFinished = true}
                         // Update only the current round
                         val currentRound = JSONObject(message.value.toString()).getString("round_number")
 
@@ -101,7 +92,7 @@ class Game : AppCompatActivity() {
                         ) { response2 ->
                             val newMessage2 = response2.body!!.string()
                             mHandler.post {
-                                updateOnHold.value = true
+                                updateOnHold = true
                                 message.setValue(newMessage2)
                             }
                         }
@@ -119,7 +110,7 @@ class Game : AppCompatActivity() {
                 val newMessage = response.body!!.string()
                 if (newMessage != message.value.toString()) {
                     mHandler.post{
-                        updateOnHold.value = false
+                        updateOnHold = false
                         message.setValue(newMessage)
                     }
                 }
@@ -454,7 +445,7 @@ class Game : AppCompatActivity() {
                 val newMessage = response.body!!.string()
                 val putUpdateOnHold = JSONObject(newMessage).isNull("cp_nickname")
                 mHandler.post{
-                    updateOnHold.value = putUpdateOnHold
+                    updateOnHold = putUpdateOnHold
                     message.setValue(newMessage)
                 }
             }
@@ -601,7 +592,7 @@ class Game : AppCompatActivity() {
 
             val history = gameObject.getJSONArray("history")
             when {
-                updateOnHold.value == true -> {
+                updateOnHold -> {
                     ll.addView(updateButton)
                 }
                 gameObject.getString("cp_nickname") == nickname -> {
@@ -670,7 +661,7 @@ class Game : AppCompatActivity() {
         hardUpdateGame()
 
         fixedRateTimer("update_game", false, 0L, 1000) {
-            if (hasWindowFocus() && gameFinished.value == false && updateOnHold.value == false) updateGame()
+            if (hasWindowFocus() && !gameFinished && !updateOnHold) updateGame()
         }
     }
 }
