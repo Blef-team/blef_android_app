@@ -26,13 +26,17 @@ import com.skydoves.powerspinner.*
 import okhttp3.*
 import org.json.JSONArray
 import org.json.JSONObject
-import java.io.IOException
 import java.util.stream.Collectors
 import kotlin.concurrent.fixedRateTimer
 
-class Card(val value: Int, val suit: Int)
-
 class Game : AppCompatActivity() {
+    class Card(val value: Int, val suit: Int)
+    object GameStatuses {
+        const val NOT_STARTED = "Not started"
+        const val RUNNING = "Running"
+        const val FINISHED = "Finished"
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_game)
@@ -83,11 +87,11 @@ class Game : AppCompatActivity() {
                 if (JsonParser().parse(newMessage) != JsonParser().parse(message.value.toString())) {
                     val newJson = JSONObject(newMessage)
                     if (newJson.getString("round_number").toInt() <= 1 || // hard update if game not started or in first round
-                        (newJson.getString("status") == "Running" && // hard update if game has not progressed to another round and has not finished
+                        (newJson.getString("status") == GameStatuses.RUNNING && // hard update if game has not progressed to another round and has not finished
                                 newJson.getString("round_number") == JSONObject(message.value.toString()).getString("round_number"))) {
                         mHandler.post{message.setValue(newMessage)}
                     } else {
-                        if (newJson.getString("status") == "Finished") mHandler.post{gameFinished.value = true}
+                        if (newJson.getString("status") == GameStatuses.FINISHED) mHandler.post{gameFinished.value = true}
                         // Update only the current round
                         val currentRound = JSONObject(message.value.toString()).getString("round_number")
 
@@ -430,13 +434,13 @@ class Game : AppCompatActivity() {
 
         fun generateGameInfo(gameObject: JSONObject) {
             when {
-                gameObject.getString("status") == "Not started" -> {
+                gameObject.getString("status") == GameStatuses.NOT_STARTED -> {
                     generatePreStartGameInfo(gameObject, gi)
                 }
-                gameObject.getString("status") == "Running" -> {
+                gameObject.getString("status") == GameStatuses.RUNNING -> {
                     generateRunningGameInfo(gameObject, gi)
                 }
-                gameObject.getString("status") == "Finished" -> {
+                gameObject.getString("status") == GameStatuses.FINISHED -> {
                     generateFinishedGameInfo(gameObject, gi)
                 }
             }
@@ -618,7 +622,7 @@ class Game : AppCompatActivity() {
                     }
                     ll.addView(confirmOrCheck)
                 }
-                gameObject.getString("status") == "Not started" && nickname == gameObject.getString("admin_nickname") -> {
+                gameObject.getString("status") == GameStatuses.NOT_STARTED && nickname == gameObject.getString("admin_nickname") -> {
                     ll.addView(startButton)
                     if (gameObject.getString("public") == "false") {
                         publicPrivateButton.tag = "make_public"
@@ -632,10 +636,10 @@ class Game : AppCompatActivity() {
                     ll.addView(publicPrivateButton)
                     ll.addView(inviteButton)
                 }
-                gameObject.getString("status") == "Not started" && nickname != null -> {
+                gameObject.getString("status") == GameStatuses.NOT_STARTED && nickname != null -> {
                     ll.addView(inviteButton)
                 }
-                gameObject.getString("status") == "Not started" && nickname == null -> {
+                gameObject.getString("status") == GameStatuses.NOT_STARTED && nickname == null -> {
                     ll.addView(typeOrGenerate)
                     ll.addView(confirmJoin)
                 }
@@ -648,12 +652,12 @@ class Game : AppCompatActivity() {
             generateGameControls(gameObject)
 
             val newHandsTrigger = gameObject.getInt("round_number").toString().plus("_").plus(gameObject.getJSONArray("hands").length().toString())
-            if (newHandsTrigger != handsTrigger && gameObject.getString("status") == "Running") {
+            if (newHandsTrigger != handsTrigger && gameObject.getString("status") == GameStatuses.RUNNING) {
                 handsTrigger = newHandsTrigger
                 updateHandsUI(gameObject)
             }
 
-            if (gameObject.getString("status") == "Finished") {
+            if (gameObject.getString("status") == GameStatuses.FINISHED) {
                 sharedPref.edit().putString("game_uuid", "").apply()
             }
         })
