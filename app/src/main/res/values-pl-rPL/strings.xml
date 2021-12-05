@@ -116,4 +116,5 @@
     <string name="set_85">Wielki poker (9-A) ♦</string>
     <string name="set_86">Wielki poker (9-A) ♥</string>
     <string name="set_87">Wielki poker (9-A) ♠</string>
+    <string name="nickname_id_bad">Pseudonimy muszą się zaczynać od litery i tylko mieć litery, cyfry, podkreślniki albo spacje</string>
 </resources>

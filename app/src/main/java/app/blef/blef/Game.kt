@@ -554,17 +554,22 @@ class Game : AppCompatActivity() {
         fun join() {
             val rawNickname = typeNickname.text.toString()
             val tryingNickname = rawNickname.replace(" ", "_")
-
-            queryEngine(
-                R.id.activity_game,
-                "$baseUrl/$gameUuid/join?nickname=$tryingNickname"
-            ) { response ->
-                val jsonBody = JSONObject(response.body!!.string())
-                playerUuid = jsonBody.getString("player_uuid")
-                nickname = tryingNickname
-                sharedPref.edit().putString("preferred_nickname", rawNickname).apply()
-                sharedPrefPlayerUuid.edit().putString(gameUuid, playerUuid).apply()
-                sharedPrefNickname.edit().putString(gameUuid, nickname).apply()
+            if(!"^[a-zA-Z]\\w*$".toRegex().matches(tryingNickname)) {
+                val errorBar = Snackbar.make(findViewById(R.id.activity_game), getString(R.string.nickname_id_bad), 5000)
+                errorBar.view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text).maxLines = 5
+                errorBar.show()
+            } else {
+                queryEngine(
+                    R.id.activity_game,
+                    "$baseUrl/$gameUuid/join?nickname=$tryingNickname"
+                ) { response ->
+                    val jsonBody = JSONObject(response.body!!.string())
+                    playerUuid = jsonBody.getString("player_uuid")
+                    nickname = tryingNickname
+                    sharedPref.edit().putString("preferred_nickname", rawNickname).apply()
+                    sharedPrefPlayerUuid.edit().putString(gameUuid, playerUuid).apply()
+                    sharedPrefNickname.edit().putString(gameUuid, nickname).apply()
+                }
             }
         }
 

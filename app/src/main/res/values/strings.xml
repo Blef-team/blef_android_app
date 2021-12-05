@@ -115,4 +115,5 @@
     <string name="set_85">Great straight flush (9-A) ♦</string>
     <string name="set_86">Great straight flush (9-A) ♥</string>
     <string name="set_87">Great straight flush (9-A) ♠</string>
+    <string name="nickname_id_bad">Nicknames must begin with a letter and only contain letters, numbers, and underscores or spaces</string>
 </resources>

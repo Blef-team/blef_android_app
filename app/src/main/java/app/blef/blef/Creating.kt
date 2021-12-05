@@ -12,6 +12,7 @@ import android.os.Looper
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
+import android.widget.TextView
 import com.google.android.material.snackbar.Snackbar
 import okhttp3.*
 import org.json.JSONObject
@@ -37,33 +38,35 @@ class Creating : AppCompatActivity() {
 
         findViewById<Button>(R.id.create_create_button).setOnClickListener {
             val rawNickname = nicknameEdittext.text.toString()
-            val nickname = rawNickname.replace(" ", "_")
-            with (sharedPref.edit()) {
-                putString("preferred_nickname", rawNickname)
-                apply()
-            }
+            val tryingNickname = rawNickname.replace(" ", "_")
 
-            val mHandler = Handler(Looper.getMainLooper())
-
-            queryEngine(
-                R.id.activity_creating,
-                "$baseUrl/create"
-            ) { response ->
-                val jsonBody1 = JSONObject(response.body!!.string())
-                val gameUuid = jsonBody1.getString("game_uuid")
+            if(!"^[a-zA-Z]\\w*$".toRegex().matches(tryingNickname)) {
+                val errorBar = Snackbar.make(findViewById(R.id.activity_creating), getString(R.string.nickname_id_bad), 5000)
+                errorBar.view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text).maxLines = 5
+                errorBar.show()
+            } else {
+                val mHandler = Handler(Looper.getMainLooper())
 
                 queryEngine(
                     R.id.activity_creating,
-                    "$baseUrl/$gameUuid/join?nickname=$nickname"
-                ) { response2 ->
-                    val playerUuid = JSONObject(response2.body!!.string()).getString("player_uuid")
-                    sharedPref.edit().putString("preferred_nickname", rawNickname).apply()
-                    this@Creating.getSharedPreferences("app.blef.blef.PLAYER_UUID", Context.MODE_PRIVATE)
-                        .edit().putString(gameUuid, playerUuid).apply()
-                    this@Creating.getSharedPreferences("app.blef.blef.NICKNAME", Context.MODE_PRIVATE)
-                        .edit().putString(gameUuid, nickname).apply()
-                    val intent = Intent(this@Creating, Game::class.java).putExtra("game_uuid", gameUuid)
-                    mHandler.post{startActivity(intent)}
+                    "$baseUrl/create"
+                ) { response ->
+                    val jsonBody1 = JSONObject(response.body!!.string())
+                    val gameUuid = jsonBody1.getString("game_uuid")
+
+                    queryEngine(
+                        R.id.activity_creating,
+                        "$baseUrl/$gameUuid/join?nickname=$tryingNickname"
+                    ) { response2 ->
+                        val playerUuid = JSONObject(response2.body!!.string()).getString("player_uuid")
+                        sharedPref.edit().putString("preferred_nickname", rawNickname).apply()
+                        this@Creating.getSharedPreferences("app.blef.blef.PLAYER_UUID", Context.MODE_PRIVATE)
+                            .edit().putString(gameUuid, playerUuid).apply()
+                        this@Creating.getSharedPreferences("app.blef.blef.NICKNAME", Context.MODE_PRIVATE)
+                            .edit().putString(gameUuid, tryingNickname).apply()
+                        val intent = Intent(this@Creating, Game::class.java).putExtra("game_uuid", gameUuid)
+                        mHandler.post{startActivity(intent)}
+                    }
                 }
             }
         }
