@@ -11,9 +11,11 @@ android {
     buildTypes {
         debug {
             signingConfig signingConfigs.release
+            debuggable true
         }
         release {
             signingConfig signingConfigs.release
+            debuggable false
         }
     }
 
