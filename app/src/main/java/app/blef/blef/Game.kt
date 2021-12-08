@@ -56,9 +56,11 @@ class Game : AppCompatActivity() {
         val linkData: Uri? = intent?.data
         val matcher = "\\b[0-9a-f]{8}\\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\\b[0-9a-f]{12}\\b".toRegex()
         val linkUuid = matcher.find(linkData.toString())?.value
-        if (linkData != null && linkUuid == "") {
-            val intent = Intent(this@Game, MainActivity::class.java).putExtra("reason", "Invalid UUID")
+        if (linkData != null && linkUuid == null) {
+            val intent = Intent(this@Game, MainActivity::class.java).putExtra("reason", redirectReasons.INVALID_UUID)
             startActivity(intent)
+            finish()
+            return
         }
         val gameUuid = if (linkData != null) linkUuid else intent.getStringExtra("game_uuid").toString().lowercase()
 
@@ -671,14 +673,22 @@ class Game : AppCompatActivity() {
         val initialRequest = Request.Builder().url(baseUrl + if (playerUuid != null)  "/$gameUuid?player_uuid=$playerUuid" else "/$gameUuid").build()
         client.newCall(initialRequest).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
-                val intent = Intent(this@Game, MainActivity::class.java).putExtra("reason", "Engine down")
-                mHandler.post{startActivity(intent)}
+                val intent = Intent(this@Game, MainActivity::class.java).putExtra("reason", redirectReasons.ENGINE_DOWN)
+                mHandler.post{
+                    startActivity(intent)
+                    finish()
+                }
+                return
             }
             override fun onResponse(call: Call, response: Response) {
                 response.use {
                     if (!response.isSuccessful) {
-                        val intent = Intent(this@Game, MainActivity::class.java).putExtra("reason", "Game unavailable")
-                        mHandler.post{startActivity(intent)}
+                        val intent = Intent(this@Game, MainActivity::class.java).putExtra("reason", redirectReasons.GAME_UNAVAILABLE)
+                        mHandler.post{
+                            startActivity(intent)
+                            finish()
+                        }
+                        return
                     } else {
                         val newMessage = response.body!!.string()
                         mHandler.post{

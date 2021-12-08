@@ -30,3 +30,9 @@ fun Activity.queryEngine(activity: Int, url: String, doWithResponse: (response: 
 }
 
 const val baseUrl = "https://n4p6oovxsg.execute-api.eu-west-2.amazonaws.com/games"
+
+object redirectReasons {
+    const val INVALID_UUID = 0
+    const val ENGINE_DOWN = 1
+    const val GAME_UNAVAILABLE = 2
+}
