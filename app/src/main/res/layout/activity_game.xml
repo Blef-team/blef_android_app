@@ -7,6 +7,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="app.blef.blef.Game">
+    <TextView
+        android:id="@+id/gamePlaceholder"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="@string/loading_game_info"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
     <ScrollView android:id="@+id/ScrollView01"
         android:layout_width="match_parent"
         android:layout_height="0dp"
