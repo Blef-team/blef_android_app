@@ -27,6 +27,7 @@ import com.skydoves.powerspinner.*
 import okhttp3.*
 import org.json.JSONArray
 import org.json.JSONObject
+import java.io.IOException
 import java.util.stream.Collectors
 import kotlin.concurrent.fixedRateTimer
 
@@ -667,7 +668,27 @@ class Game : AppCompatActivity() {
             }
         })
 
-        hardUpdateGame()
+        val initialRequest = Request.Builder().url(baseUrl + if (playerUuid != null)  "/$gameUuid?player_uuid=$playerUuid" else "/$gameUuid").build()
+        client.newCall(initialRequest).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                val intent = Intent(this@Game, MainActivity::class.java).putExtra("reason", "Engine down")
+                mHandler.post{startActivity(intent)}
+            }
+            override fun onResponse(call: Call, response: Response) {
+                response.use {
+                    if (!response.isSuccessful) {
+                        val intent = Intent(this@Game, MainActivity::class.java).putExtra("reason", "Game unavailable")
+                        mHandler.post{startActivity(intent)}
+                    } else {
+                        val newMessage = response.body!!.string()
+                        mHandler.post{
+                            message.value = newMessage
+                            findViewById<TextView>(R.id.gamePlaceholder).visibility = View.GONE
+                        }
+                    }
+                }
+            }
+        })
 
         fixedRateTimer("update_game", false, 0L, 1000) {
             if (hasWindowFocus() && !gameFinished && !updateOnHold) updateGame()
