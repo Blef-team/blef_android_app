@@ -33,10 +33,16 @@ class MainActivity : AppCompatActivity() {
             return((raw * pixelDensity).toInt())
         }
 
-        val redirectReason = intent.getStringExtra("reason").toString()
-        if (redirectReason == "Invite failed") {
+        val redirectReason = intent.getIntExtra("reason", -1)
+        if (redirectReason != -1) {
+            val popupMessage = when (redirectReason) {
+                redirectReasons.INVALID_UUID -> getString(R.string.invalid_uuid)
+                redirectReasons.ENGINE_DOWN -> getString(R.string.engine_down)
+                redirectReasons.GAME_UNAVAILABLE -> getString(R.string.game_unavailable)
+                else -> getString(R.string.something_went_wrong)
+            }
             AlertDialog.Builder(this)
-                .setMessage(getString(R.string.invite_link_failed))
+                .setMessage(popupMessage)
                 .setPositiveButton("OK", null)
                 .show()
         }
