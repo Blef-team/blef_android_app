@@ -690,7 +690,7 @@ class Game : AppCompatActivity() {
             }
         })
 
-        fixedRateTimer("update_game", false, 0L, 1000) {
+        fixedRateTimer("update_game", false, 1000, 1000) {
             if (hasWindowFocus() && !gameFinished && !updateOnHold) updateGame()
         }
     }
