@@ -15,19 +15,17 @@
         android:theme="@style/Theme.Blef">
         <activity android:name="app.blef.blef.Creating"/>
         <activity
-            android:name="app.blef.blef.JoiningWithUuid"
-            android:exported="true">
+            android:name="app.blef.blef.Game"
+            android:exported="true"
+            android:parentActivityName="app.blef.blef.MainActivity" >
             <intent-filter android:label="@string/join_via_invite_link" android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="https"
-                      android:host="www.blef.app"/>
+                    android:host="www.blef.app"/>
             </intent-filter>
         </activity>
-        <activity
-            android:name="app.blef.blef.Game"
-            android:parentActivityName="app.blef.blef.MainActivity" />
         <activity android:name="app.blef.blef.MainActivity" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
