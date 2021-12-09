@@ -678,7 +678,6 @@ class Game : AppCompatActivity() {
                     startActivity(intent)
                     finish()
                 }
-                return
             }
             override fun onResponse(call: Call, response: Response) {
                 response.use {
@@ -688,7 +687,6 @@ class Game : AppCompatActivity() {
                             startActivity(intent)
                             finish()
                         }
-                        return
                     } else {
                         val newMessage = response.body!!.string()
                         mHandler.post{
