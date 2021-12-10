@@ -8,17 +8,6 @@ android {
         release
     }
 
-    buildTypes {
-        debug {
-            signingConfig signingConfigs.release
-            debuggable true
-        }
-        release {
-            signingConfig signingConfigs.release
-            debuggable false
-        }
-    }
-
     compileSdkVersion 31
     buildToolsVersion "30.0.3"
 
@@ -33,6 +22,7 @@ android {
     }
 
     buildTypes {
+        debug {}
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
