@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -26,6 +27,7 @@ import com.skydoves.powerspinner.*
 import okhttp3.*
 import org.json.JSONArray
 import org.json.JSONObject
+import java.io.IOException
 import java.util.stream.Collectors
 import kotlin.concurrent.fixedRateTimer
 
@@ -51,7 +53,17 @@ class Game : AppCompatActivity() {
             init { height = adjustForDensity(80) }
         }
 
-        val gameUuid = intent.getStringExtra("game_uuid").toString().lowercase()
+        val linkData: Uri? = intent?.data
+        val matcher = "\\b[0-9a-f]{8}\\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\\b[0-9a-f]{12}\\b".toRegex()
+        val linkUuid = matcher.find(linkData.toString())?.value
+        if (linkData != null && linkUuid == null) {
+            val intent = Intent(this@Game, MainActivity::class.java).putExtra("reason", redirectReasons.INVALID_UUID)
+            startActivity(intent)
+            finish()
+            return
+        }
+        val gameUuid = if (linkData != null) linkUuid else intent.getStringExtra("game_uuid").toString().lowercase()
+
         val sharedPref = this.getSharedPreferences("app.blef.blef.MAIN", Context.MODE_PRIVATE)
         sharedPref.edit().putString("game_uuid", gameUuid).apply()
         val sharedPrefPlayerUuid = this.getSharedPreferences("app.blef.blef.PLAYER_UUID", Context.MODE_PRIVATE)
@@ -658,9 +670,35 @@ class Game : AppCompatActivity() {
             }
         })
 
-        hardUpdateGame()
+        val initialRequest = Request.Builder().url(baseUrl + if (playerUuid != null)  "/$gameUuid?player_uuid=$playerUuid" else "/$gameUuid").build()
+        client.newCall(initialRequest).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                val intent = Intent(this@Game, MainActivity::class.java).putExtra("reason", redirectReasons.ENGINE_DOWN)
+                mHandler.post{
+                    startActivity(intent)
+                    finish()
+                }
+            }
+            override fun onResponse(call: Call, response: Response) {
+                response.use {
+                    if (!response.isSuccessful) {
+                        val intent = Intent(this@Game, MainActivity::class.java).putExtra("reason", redirectReasons.GAME_UNAVAILABLE)
+                        mHandler.post{
+                            startActivity(intent)
+                            finish()
+                        }
+                    } else {
+                        val newMessage = response.body!!.string()
+                        mHandler.post{
+                            message.value = newMessage
+                            findViewById<TextView>(R.id.gamePlaceholder).visibility = View.GONE
+                        }
+                    }
+                }
+            }
+        })
 
-        fixedRateTimer("update_game", false, 0L, 1000) {
+        fixedRateTimer("update_game", false, 1000, 1000) {
             if (hasWindowFocus() && !gameFinished && !updateOnHold) updateGame()
         }
     }
