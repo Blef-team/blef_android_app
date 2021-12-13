@@ -631,7 +631,7 @@ class Game : AppCompatActivity() {
                     ll.addView(confirmOrCheck)
                 }
                 gameObject.getString("status") == GameStatuses.NOT_STARTED && nickname == gameObject.getString("admin_nickname") -> {
-                    ll.addView(startButton)
+                    if (gameObject.getJSONArray("players").length() > 1) ll.addView(startButton)
                     if (gameObject.getString("public") == "false") {
                         publicPrivateButton.tag = "make_public"
                         publicPrivateButton.text = getString(R.string.make_public)
