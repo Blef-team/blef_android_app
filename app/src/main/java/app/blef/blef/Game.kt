@@ -78,6 +78,33 @@ class Game : AppCompatActivity() {
 
         val mHandler = Handler(Looper.getMainLooper())
 
+        val initialRequest = Request.Builder().url(baseUrl + if (playerUuid != null)  "/$gameUuid?player_uuid=$playerUuid" else "/$gameUuid").build()
+        client.newCall(initialRequest).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                val intent = Intent(this@Game, MainActivity::class.java).putExtra("reason", redirectReasons.ENGINE_DOWN)
+                mHandler.post{
+                    startActivity(intent)
+                    finish()
+                }
+            }
+            override fun onResponse(call: Call, response: Response) {
+                response.use {
+                    if (!response.isSuccessful) {
+                        val intent = Intent(this@Game, MainActivity::class.java).putExtra("reason", redirectReasons.GAME_UNAVAILABLE)
+                        mHandler.post{
+                            startActivity(intent)
+                            finish()
+                        }
+                    } else {
+                        val newMessage = response.body!!.string()
+                        mHandler.post{
+                            message.value = newMessage
+                        }
+                    }
+                }
+            }
+        })
+
         val emptyCardHTML = "<img class=\"emptyCard\" src=\"cardEmpty2.png\">"
         val questionCardHTML = "<img class=\"questionCard\" src=\"cardQuestion.png\">"
 
@@ -654,8 +681,8 @@ class Game : AppCompatActivity() {
             }
         }
 
-        message.observe(this@Game, {
-            val gameObject = JSONObject(message.value.toString())
+        fun updateUI(message: String) {
+            val gameObject = JSONObject(message)
             generateGameInfo(gameObject)
             generateGameControls(gameObject)
 
@@ -668,35 +695,12 @@ class Game : AppCompatActivity() {
             if (gameObject.getString("status") == GameStatuses.FINISHED) {
                 sharedPref.edit().putString("game_uuid", "").apply()
             }
-        })
+            findViewById<TextView>(R.id.gamePlaceholder).visibility = View.GONE
+        }
 
-        val initialRequest = Request.Builder().url(baseUrl + if (playerUuid != null)  "/$gameUuid?player_uuid=$playerUuid" else "/$gameUuid").build()
-        client.newCall(initialRequest).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                val intent = Intent(this@Game, MainActivity::class.java).putExtra("reason", redirectReasons.ENGINE_DOWN)
-                mHandler.post{
-                    startActivity(intent)
-                    finish()
-                }
-            }
-            override fun onResponse(call: Call, response: Response) {
-                response.use {
-                    if (!response.isSuccessful) {
-                        val intent = Intent(this@Game, MainActivity::class.java).putExtra("reason", redirectReasons.GAME_UNAVAILABLE)
-                        mHandler.post{
-                            startActivity(intent)
-                            finish()
-                        }
-                    } else {
-                        val newMessage = response.body!!.string()
-                        mHandler.post{
-                            message.value = newMessage
-                            findViewById<TextView>(R.id.gamePlaceholder).visibility = View.GONE
-                        }
-                    }
-                }
-            }
-        })
+        message.observe(this@Game, { updateUI(message.value.toString()) })
+
+        if (message.value != null) updateUI(message.value.toString())
 
         fixedRateTimer("update_game", false, 1000, 1000) {
             if (hasWindowFocus() && !gameFinished && !updateOnHold) updateGame()
