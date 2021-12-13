@@ -483,7 +483,7 @@ class Game : AppCompatActivity() {
         checkButton.text = getString(R.string.check)
         checkButton.setOnClickListener {
             sendAction(88)
-            findViewById<PowerSpinnerView>(0).dismiss()
+            findViewById<PowerSpinnerView>(0)?.dismiss()
         }
 
         val startButton = BlefButton(this@Game)
