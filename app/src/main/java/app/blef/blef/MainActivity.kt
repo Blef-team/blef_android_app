@@ -186,7 +186,8 @@ class MainActivity : AppCompatActivity() {
                                 val continueIntent = Intent(this@MainActivity, Game::class.java)
                                     .putExtra("game_uuid", sharedPref.getString("game_uuid", null))
                                 mHandler.post {
-                                    continueButton.setBackgroundColor(ContextCompat.getColor(this@MainActivity, R.color.purple_500))
+                                    continueButton.isClickable = true
+                                    continueButton.setBackgroundColor(ContextCompat.getColor(this@MainActivity, R.color.design_default_color_primary))
                                     continueButton.setOnClickListener { startActivity(continueIntent) }
                                 }
                             } else {
