@@ -9,21 +9,20 @@
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="12dp"
         android:orientation="vertical">
         <LinearLayout
             android:id="@+id/page_buttons"
             android:orientation="horizontal"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="6dp"
-            android:layout_marginEnd="6dp"
             android:layout_marginTop="12dp">
             <Button
                 android:id="@+id/create"
                 android:layout_width="fill_parent"
                 android:layout_height="80dp"
                 android:layout_weight="1"
-                android:layout_marginStart="6dp"
                 android:layout_marginEnd="6dp"
                 android:text="@string/create"
                 android:layout_gravity="center_vertical" />
@@ -33,18 +32,14 @@
                 android:layout_height="80dp"
                 android:layout_weight="1"
                 android:layout_marginStart="6dp"
-                android:layout_marginEnd="6dp"
                 android:text="@string/continueGame"
-                android:visibility="gone"
                 android:layout_gravity="center_vertical" />
         </LinearLayout>
         <LinearLayout
             android:id="@+id/publicGames"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
             android:layout_marginTop="12dp"
-            android:layout_marginEnd="12dp"
             android:orientation="vertical"></LinearLayout>
     </LinearLayout>
 </ScrollView>

@@ -33,11 +33,6 @@ import kotlin.concurrent.fixedRateTimer
 
 class Game : AppCompatActivity() {
     class Card(val value: Int, val suit: Int)
-    object GameStatuses {
-        const val NOT_STARTED = "Not started"
-        const val RUNNING = "Running"
-        const val FINISHED = "Finished"
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         resources.displayMetrics.density = (resources.displayMetrics.widthPixels / 360).toFloat()

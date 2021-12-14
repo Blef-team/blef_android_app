@@ -36,3 +36,9 @@ object redirectReasons {
     const val ENGINE_DOWN = 1
     const val GAME_UNAVAILABLE = 2
 }
+
+object GameStatuses {
+    const val NOT_STARTED = "Not started"
+    const val RUNNING = "Running"
+    const val FINISHED = "Finished"
+}
