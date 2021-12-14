@@ -85,6 +85,6 @@ lint/tmp/
 # lint/reports/
 
 # ADDED BY MYSELF
-app/security/*
+security/*
 app/debug/output-metadata.json
 app/release/output-metadata.json

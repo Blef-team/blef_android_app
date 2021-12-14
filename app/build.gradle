@@ -8,17 +8,6 @@ android {
         release
     }
 
-    buildTypes {
-        debug {
-            signingConfig signingConfigs.release
-            debuggable true
-        }
-        release {
-            signingConfig signingConfigs.release
-            debuggable false
-        }
-    }
-
     compileSdkVersion 31
     buildToolsVersion "30.0.3"
 
@@ -33,6 +22,7 @@ android {
     }
 
     buildTypes {
+        debug {}
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
@@ -63,21 +53,9 @@ dependencies {
 }
 
 Properties props = new Properties()
-def propFile = new File('app/security/signing.properties')
-if (propFile.canRead()){
-    props.load(new FileInputStream(propFile))
-
-    if (props!=null && props.containsKey('STORE_FILE') && props.containsKey('STORE_PASSWORD') &&
-            props.containsKey('KEY_ALIAS') && props.containsKey('KEY_PASSWORD')) {
-        android.signingConfigs.release.storeFile = file(props['STORE_FILE'])
-        android.signingConfigs.release.storePassword = props['STORE_PASSWORD']
-        android.signingConfigs.release.keyAlias = props['KEY_ALIAS']
-        android.signingConfigs.release.keyPassword = props['KEY_PASSWORD']
-    } else {
-        println 'signing.properties found but some entries are missing'
-        android.buildTypes.release.signingConfig = null
-    }
-}else {
-    println 'signing.properties not found'
-    android.buildTypes.release.signingConfig = null
-}
+def propFile = new File('security/signing.properties')
+props.load(new FileInputStream(propFile))
+android.signingConfigs.release.storeFile = file(props['STORE_FILE'])
+android.signingConfigs.release.storePassword = props['STORE_PASSWORD']
+android.signingConfigs.release.keyAlias = props['KEY_ALIAS']
+android.signingConfigs.release.keyPassword = props['KEY_PASSWORD']
