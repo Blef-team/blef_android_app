@@ -40,6 +40,7 @@ class Game : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        resources.displayMetrics.density = (resources.displayMetrics.widthPixels / 360).toFloat()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_game)
         val sets = Sets(this@Game)
