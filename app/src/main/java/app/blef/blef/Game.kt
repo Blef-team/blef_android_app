@@ -491,13 +491,11 @@ class Game : AppCompatActivity() {
         }
 
         val singleButtonParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-        singleButtonParams.setMargins(0, adjustForDensity(6), 0, adjustForDensity(6))
+        singleButtonParams.setMargins(0, adjustForDensity(6), 0, 0)
         val leftButtonParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-        leftButtonParams.setMargins(0, adjustForDensity(6), adjustForDensity(6), adjustForDensity(6))
+        leftButtonParams.setMargins(0, adjustForDensity(6), adjustForDensity(6), 0)
         val rightButtonParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-        rightButtonParams.setMargins(adjustForDensity(6), adjustForDensity(6), 0, adjustForDensity(6))
-        val verticalButtonParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-        verticalButtonParams.setMargins(0, 0, 0, adjustForDensity(6))
+        rightButtonParams.setMargins(adjustForDensity(6), adjustForDensity(6), 0, 0)
 
         val confirmButton = BlefButton(this@Game)
         confirmButton.text = getString(R.string.confirm)
@@ -516,13 +514,13 @@ class Game : AppCompatActivity() {
         val startButton = BlefButton(this@Game)
         startButton.tag = "start"
         startButton.text = getString(R.string.start_game)
-        startButton.layoutParams = verticalButtonParams
+        startButton.layoutParams = singleButtonParams
         startButton.setOnClickListener{start()}
 
         val inviteButton = BlefButton(this@Game)
         inviteButton.tag = "inviteButton"
         inviteButton.text = getString(R.string.send_invite)
-        inviteButton.layoutParams = verticalButtonParams
+        inviteButton.layoutParams = singleButtonParams
         inviteButton.setOnClickListener{
             val link = "${getString(R.string.join_me_for_a_game_of_blef)}: https://www.blef.app/join.html?game_uuid=$gameUuid"
             val intent = Intent(Intent.ACTION_SEND)
@@ -532,7 +530,7 @@ class Game : AppCompatActivity() {
         }
 
         val publicPrivateButton = BlefButton(this@Game)
-        publicPrivateButton.layoutParams = verticalButtonParams
+        publicPrivateButton.layoutParams = singleButtonParams
 
         fun makeBetChooser(lastActionId: Int): PowerSpinnerView {
             val betChooser = createPowerSpinnerView(this) {
@@ -628,6 +626,7 @@ class Game : AppCompatActivity() {
         fun generateGameControls(gameObject: JSONObject) {
             val ll = findViewById<LinearLayout>(R.id.controlPanel)
             ll.removeAllViews()
+            ll.setPadding(adjustForDensity(12), 0, adjustForDensity(12), adjustForDensity(6))
 
             val history = gameObject.getJSONArray("history")
             when {
@@ -677,6 +676,9 @@ class Game : AppCompatActivity() {
                 gameObject.getString("status") == GameStatuses.NOT_STARTED && nickname == null -> {
                     ll.addView(typeOrGenerate)
                     ll.addView(confirmJoin)
+                }
+                else -> {
+                    ll.setPadding(adjustForDensity(12), 0, adjustForDensity(12), 0)
                 }
             }
         }
