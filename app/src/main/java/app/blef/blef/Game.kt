@@ -185,6 +185,14 @@ class Game : AppCompatActivity() {
             )
         }
 
+        fun inviteAi(name: String) {
+            queryEngine(
+                R.id.activity_game,
+                "$baseUrl/$gameUuid/invite-aiagent?admin_uuid=$playerUuid&agent_name=$name",
+                ::updateGameIfEngineHappy
+            )
+        }
+
         fun makeCell(s: String): String {
             return("<td>".plus(s).plus("</td>"))
         }
@@ -513,6 +521,10 @@ class Game : AppCompatActivity() {
         startButton.layoutParams = singleButtonParams
         startButton.setOnClickListener{start()}
 
+        val adminPerks = LinearLayout(this@Game)
+        adminPerks.orientation = LinearLayout.HORIZONTAL
+        adminPerks.isBaselineAligned = false
+
         val inviteButton = BlefButton(this@Game)
         inviteButton.tag = "inviteButton"
         inviteButton.text = getString(R.string.send_invite)
@@ -526,7 +538,16 @@ class Game : AppCompatActivity() {
         }
 
         val publicPrivateButton = BlefButton(this@Game)
-        publicPrivateButton.layoutParams = singleButtonParams
+        publicPrivateButton.layoutParams = leftButtonParams
+
+        val aiDazhbogButton = BlefButton(this@Game)
+        aiDazhbogButton.tag = "start"
+        aiDazhbogButton.text = getString(R.string.invite_dazhbog)
+        aiDazhbogButton.layoutParams = rightButtonParams
+        aiDazhbogButton.setOnClickListener{inviteAi("Dazhbog")}
+
+        adminPerks.addView(publicPrivateButton)
+        adminPerks.addView(aiDazhbogButton)
 
         fun makeBetChooser(lastActionId: Int): PowerSpinnerView {
             val betChooser = createPowerSpinnerView(this) {
@@ -663,7 +684,7 @@ class Game : AppCompatActivity() {
                         publicPrivateButton.text = getString(R.string.make_private)
                         publicPrivateButton.setOnClickListener{makePrivate()}
                     }
-                    ll.addView(publicPrivateButton)
+                    ll.addView(adminPerks)
                     ll.addView(inviteButton)
                 }
                 gameObject.getString("status") == GameStatuses.NOT_STARTED && nickname != null -> {

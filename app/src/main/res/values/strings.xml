@@ -16,6 +16,7 @@
     <string name="confirm">Confirm</string>
     <string name="start_game">Start</string>
     <string name="send_invite">Send invite</string>
+    <string name="invite_dazhbog">Invite Dazhbog (AI)</string>
     <string name="join_me_for_a_game_of_blef">Join me for a game of Blef</string>
     <string name="join">Join</string>
     <string name="go_to_current_round">Go to current round</string>
