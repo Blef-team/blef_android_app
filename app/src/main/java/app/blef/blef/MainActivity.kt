@@ -149,6 +149,50 @@ class MainActivity : AppCompatActivity() {
         })
 
         playerFilter.addTextChangedListener { generatePublicGames() }
+
+        val quickPlayButton = findViewById<Button>(R.id.quickPlay)
+        findViewById<Button>(R.id.quickPlay).setOnClickListener {
+            queryEngineUsingButton(
+                quickPlayButton,
+                getString(R.string.creating),
+                R.id.activity_main,
+                "$baseUrl/create"
+            ) { response ->
+                val jsonBody1 = JSONObject(response.body!!.string())
+                val gameUuid = jsonBody1.getString("game_uuid")
+                val nickname = getString(R.string.default_nickname)
+
+                queryEngineUsingButton(
+                    quickPlayButton,
+                    getString(R.string.joining),
+                    R.id.activity_main,
+                    "$baseUrl/$gameUuid/join?nickname=$nickname"
+                ) { response2 ->
+                    val playerUuid = JSONObject(response2.body!!.string()).getString("player_uuid")
+
+                    queryEngineUsingButton(
+                        quickPlayButton,
+                        getString(R.string.inviting),
+                        R.id.activity_main,
+                        "$baseUrl/$gameUuid/invite-aiagent?admin_uuid=$playerUuid&agent_name=Dazhbog"
+                    ) {
+                        queryEngineUsingButton(
+                            quickPlayButton,
+                            getString(R.string.starting),
+                            R.id.activity_main,
+                            "$baseUrl/$gameUuid/start?admin_uuid=$playerUuid"
+                        ) {
+                            this@MainActivity.getSharedPreferences("app.blef.blef.PLAYER_UUID", Context.MODE_PRIVATE)
+                                .edit().putString(gameUuid, playerUuid).apply()
+                            this@MainActivity.getSharedPreferences("app.blef.blef.NICKNAME", Context.MODE_PRIVATE)
+                                .edit().putString(gameUuid, nickname).apply()
+                            val intent = Intent(this@MainActivity, Game::class.java).putExtra("game_uuid", gameUuid)
+                            mHandler.post{startActivity(intent)}
+                        }
+                    }
+                }
+            }
+        }
     }
 
     override fun onResume() {

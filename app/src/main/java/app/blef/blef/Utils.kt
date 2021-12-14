@@ -1,6 +1,7 @@
 package app.blef.blef
 
 import android.app.Activity
+import android.widget.Button
 import android.widget.TextView
 import com.google.android.material.snackbar.Snackbar
 import okhttp3.*
@@ -24,6 +25,33 @@ fun Activity.queryEngine(activity: Int, url: String, doWithResponse: (response: 
                 } else {
                     doWithResponse(response)
                 }
+            }
+        }
+    })
+}
+
+fun Activity.queryEngineUsingButton(button: Button, temporaryText: String,
+                                    activity: Int, url: String, doWithResponse: (response: Response) -> Unit) {
+    val savedText = button.text
+    button.text = temporaryText
+    val request = Request.Builder().url(url).build()
+    client.newCall(request).enqueue(object : Callback {
+        override fun onFailure(call: Call, e: IOException) {
+            val engineErrorBar = Snackbar.make(findViewById(activity), getString(R.string.engine_down), 3000)
+            engineErrorBar.view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text).maxLines = 5
+            engineErrorBar.show()
+            button.text = savedText
+        }
+        override fun onResponse(call: Call, response: Response) {
+            response.use {
+                if (!response.isSuccessful) {
+                    val engineErrorBar = Snackbar.make(findViewById(activity), JSONObject(response.body!!.string()).getString("error"), 3000)
+                    engineErrorBar.view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text).maxLines = 5
+                    engineErrorBar.show()
+                } else {
+                    doWithResponse(response)
+                }
+                button.text = savedText
             }
         }
     })

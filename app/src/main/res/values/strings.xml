@@ -4,6 +4,12 @@
     <string name="nickname_hint">Nickname...</string>
     <string name="create">Create</string>
     <string name="continueGame">Continue</string>
+    <string name="quick_play">Quick play 🤖</string>
+    <string name="default_nickname">Player</string>
+    <string name="creating">Creating...</string>
+    <string name="joining">Joining...</string>
+    <string name="inviting">Inviting...</string>
+    <string name="starting">Starting...</string>
     <string name="join_via_invite_link">Join a Blef game</string>
     <string name="no_games">There are no public games.</string>
     <string name="players">Players</string>

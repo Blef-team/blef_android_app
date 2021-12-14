@@ -5,6 +5,12 @@
     <string name="nickname_hint">Pseudonim...</string>
     <string name="create">Utwórz</string>
     <string name="continueGame">Kontynuuj</string>
+    <string name="quick_play">Szybka gra 🤖</string>
+    <string name="default_nickname">Gracz</string>
+    <string name="creating">Tworzę...</string>
+    <string name="joining">Dołączam...</string>
+    <string name="inviting">Zapraszam...</string>
+    <string name="starting">Rozpoczynam...</string>
     <string name="join_via_invite_link">Dołącz do gry</string>
     <string name="no_games">Nie ma publicznych gier.</string>
     <string name="players">Gracze</string>

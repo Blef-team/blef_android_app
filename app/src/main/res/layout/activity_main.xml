@@ -35,6 +35,11 @@
                 android:text="@string/continueGame"
                 android:layout_gravity="center_vertical" />
         </LinearLayout>
+        <Button
+            android:id="@+id/quickPlay"
+            android:layout_width="fill_parent"
+            android:layout_height="80dp"
+            android:text="@string/quick_play" />
         <LinearLayout
             android:id="@+id/publicGames"
             android:layout_width="fill_parent"
