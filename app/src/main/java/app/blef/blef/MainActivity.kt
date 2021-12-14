@@ -5,13 +5,14 @@ package app.blef.blef
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.MutableLiveData
 import okhttp3.*
@@ -22,6 +23,7 @@ import kotlin.concurrent.fixedRateTimer
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        resources.displayMetrics.density = (resources.displayMetrics.widthPixels / 360).toFloat()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
@@ -157,7 +159,14 @@ class MainActivity : AppCompatActivity() {
         val lastGameUuid = sharedPref.getString("game_uuid", "")
         val continueButton = findViewById<Button>(R.id.continueGame)
 
-        if (lastGameUuid != "") {
+        fun freezeContinueButton() {
+            continueButton.setBackgroundColor(Color.GRAY)
+            continueButton.isClickable = false
+        }
+
+        if (lastGameUuid == "") {
+            freezeContinueButton()
+        } else {
             val lastGameRequest = Request.Builder()
                 .url("$baseUrl/$lastGameUuid")
                 .build()
@@ -166,24 +175,24 @@ class MainActivity : AppCompatActivity() {
                 override fun onFailure(call: Call, e: IOException) {
                     e.printStackTrace()
                 }
-
                 override fun onResponse(call: Call, response: Response) {
                     response.use {
                         if (!response.isSuccessful) {
                             sharedPref.edit().putString("game_uuid", "")
-                            mHandler.post { continueButton.visibility = View.GONE }
+                            mHandler.post { freezeContinueButton() }
                         } else {
                             val newMessage = response.body!!.string()
-                            if (JSONObject(newMessage).getString("status") == "Finished") {
-                                sharedPref.edit().putString("game_uuid", "").apply()
-                                mHandler.post { continueButton.visibility = View.GONE }
-                            } else {
+                            if (JSONObject(newMessage).getString("status") in setOf(GameStatuses.NOT_STARTED, GameStatuses.RUNNING)) {
                                 val continueIntent = Intent(this@MainActivity, Game::class.java)
                                     .putExtra("game_uuid", sharedPref.getString("game_uuid", null))
                                 mHandler.post {
-                                    continueButton.visibility = View.VISIBLE
+                                    continueButton.isClickable = true
+                                    continueButton.setBackgroundColor(ContextCompat.getColor(this@MainActivity, R.color.design_default_color_primary))
                                     continueButton.setOnClickListener { startActivity(continueIntent) }
                                 }
+                            } else {
+                                sharedPref.edit().putString("game_uuid", "").apply()
+                                mHandler.post { freezeContinueButton() }
                             }
                         }
                     }
