@@ -215,29 +215,28 @@ class MainActivity : AppCompatActivity() {
             val lastGameRequest = Request.Builder()
                 .url("$baseUrl/$lastGameUuid")
                 .build()
-
+            val continueIntent = Intent(this@MainActivity, Game::class.java)
+                .putExtra("game_uuid", sharedPref.getString("game_uuid", null))
+            continueButton.isClickable = true
+            continueButton.setBackgroundColor(ContextCompat.getColor(this@MainActivity, R.color.design_default_color_primary))
+            continueButton.setOnClickListener { startActivity(continueIntent) }
             client.newCall(lastGameRequest).enqueue(object : Callback {
                 override fun onFailure(call: Call, e: IOException) {
-                    e.printStackTrace()
+                    showQueryError(R.id.activity_main, getString(R.string.engine_down))
                 }
                 override fun onResponse(call: Call, response: Response) {
                     response.use {
-                        if (!response.isSuccessful) {
-                            sharedPref.edit().putString("game_uuid", "")
-                            mHandler.post { freezeContinueButton() }
-                        } else {
-                            val newMessage = response.body!!.string()
-                            if (JSONObject(newMessage).getString("status") in setOf(GameStatuses.NOT_STARTED, GameStatuses.RUNNING)) {
-                                val continueIntent = Intent(this@MainActivity, Game::class.java)
-                                    .putExtra("game_uuid", sharedPref.getString("game_uuid", null))
-                                mHandler.post {
-                                    continueButton.isClickable = true
-                                    continueButton.setBackgroundColor(ContextCompat.getColor(this@MainActivity, R.color.design_default_color_primary))
-                                    continueButton.setOnClickListener { startActivity(continueIntent) }
-                                }
-                            } else {
+                        when {
+                            !response.isSuccessful -> {
+                                sharedPref.edit().putString("game_uuid", "")
+                                mHandler.post { freezeContinueButton() }
+                            }
+                            JSONObject(response.body!!.string()).getString("status") == GameStatuses.FINISHED -> {
                                 sharedPref.edit().putString("game_uuid", "").apply()
                                 mHandler.post { freezeContinueButton() }
+                            }
+                            else -> {
+                                return
                             }
                         }
                     }
