@@ -49,17 +49,17 @@ fun Activity.queryEngineUsingButton(button: Button, temporaryText: String,
     val request = Request.Builder().url(url).build()
     client.newCall(request).enqueue(object : Callback {
         override fun onFailure(call: Call, e: IOException) {
-            showQueryError(activity, getString(R.string.engine_down))
             button.text = savedText
+            showQueryError(activity, getString(R.string.engine_down))
         }
         override fun onResponse(call: Call, response: Response) {
             response.use {
+                button.text = savedText
                 if (!response.isSuccessful) {
                     showQueryError(activity, JSONObject(response.body!!.string()).getString("error"))
                 } else {
                     doWithResponse(response)
                 }
-                button.text = savedText
             }
         }
     })
