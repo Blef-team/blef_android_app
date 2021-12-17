@@ -51,7 +51,7 @@ class Game : AppCompatActivity() {
 
         val linkData: Uri? = intent?.data
         val matcher = "\\b[0-9a-f]{8}\\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\\b[0-9a-f]{12}\\b".toRegex()
-        val linkUuid = matcher.find(linkData.toString())?.value
+        val linkUuid = matcher.find(linkData.toString().lowercase())?.value
         if (linkData != null && linkUuid == null) {
             val intent = Intent(this@Game, MainActivity::class.java).putExtra("reason", redirectReasons.INVALID_UUID)
             startActivity(intent)
