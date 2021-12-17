@@ -108,6 +108,7 @@ class Game : AppCompatActivity() {
             queryEngine(
                 R.id.activity_game,
                 baseUrl + if (playerUuid != null)  "/$gameUuid?player_uuid=$playerUuid" else "/$gameUuid",
+                failSilently = true
             ) { response ->
                 val newMessage = response.body!!.string()
                 if (JsonParser().parse(newMessage) != JsonParser().parse(message.value.toString())) {
@@ -117,14 +118,17 @@ class Game : AppCompatActivity() {
                                 newJson.getString("round_number") == JSONObject(message.value.toString()).getString("round_number"))) {
                         mHandler.post{message.setValue(newMessage)}
                     } else {
-                        if (newJson.getString("status") == GameStatuses.FINISHED) mHandler.post{gameFinished = true}
                         // Update only the current round
                         val currentRound = JSONObject(message.value.toString()).getString("round_number")
 
                         queryEngine(
                             R.id.activity_game,
-                            baseUrl + if (playerUuid != null)  "/$gameUuid?player_uuid=$playerUuid&round=$currentRound" else "/$gameUuid?round=$currentRound"
+                            baseUrl + if (playerUuid != null)  "/$gameUuid?player_uuid=$playerUuid&round=$currentRound" else "/$gameUuid?round=$currentRound",
+                            failSilently = true
                         ) { response2 ->
+                            if (newJson.getString("status") == GameStatuses.FINISHED){
+                                mHandler.post{gameFinished = true} // Upon game finish, only stop regular queries if the second query was successful
+                            }
                             val newMessage2 = response2.body!!.string()
                             mHandler.post {
                                 updateOnHold = true
@@ -165,7 +169,7 @@ class Game : AppCompatActivity() {
             queryEngine(
                 R.id.activity_game,
                 "$baseUrl/$gameUuid/make-public?admin_uuid=$playerUuid",
-                ::updateGameIfEngineHappy
+                doWithResponse = ::updateGameIfEngineHappy
             )
         }
 
@@ -173,7 +177,7 @@ class Game : AppCompatActivity() {
             queryEngine(
                 R.id.activity_game,
                 "$baseUrl/$gameUuid/make-private?admin_uuid=$playerUuid",
-                ::updateGameIfEngineHappy
+                doWithResponse = ::updateGameIfEngineHappy
             )
         }
 
@@ -181,7 +185,7 @@ class Game : AppCompatActivity() {
             queryEngine(
                 R.id.activity_game,
                 "$baseUrl/$gameUuid/start?admin_uuid=$playerUuid",
-                ::updateGameIfEngineHappy
+                doWithResponse = ::updateGameIfEngineHappy
             )
         }
 
@@ -189,7 +193,7 @@ class Game : AppCompatActivity() {
             queryEngine(
                 R.id.activity_game,
                 "$baseUrl/$gameUuid/invite-aiagent?admin_uuid=$playerUuid&agent_name=$name",
-                ::updateGameIfEngineHappy
+                doWithResponse = ::updateGameIfEngineHappy
             )
         }
 

@@ -10,20 +10,32 @@ import java.io.IOException
 
 val client = OkHttpClient()
 
-fun Activity.queryEngine(activity: Int, url: String, doWithResponse: (response: Response) -> Unit) {
+fun Activity.showQueryError(activity: Int, message: String) {
+    val engineErrorBar = Snackbar.make(findViewById(activity), message, 3000)
+    engineErrorBar.view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text).maxLines = 5
+    engineErrorBar.show()
+}
+
+fun Activity.queryEngine(activity: Int, url: String, failSilently: Boolean = false, doWithResponse: (response: Response) -> Unit) {
     val request = Request.Builder().url(url).build()
     client.newCall(request).enqueue(object : Callback {
         override fun onFailure(call: Call, e: IOException) {
-            e.printStackTrace()
+            if (!failSilently) {
+                showQueryError(activity, getString(R.string.engine_down))
+            }
         }
         override fun onResponse(call: Call, response: Response) {
             response.use {
-                if (!response.isSuccessful) {
-                    val engineErrorBar = Snackbar.make(findViewById(activity), JSONObject(response.body!!.string()).getString("error"), 3000)
-                    engineErrorBar.view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text).maxLines = 5
-                    engineErrorBar.show()
-                } else {
-                    doWithResponse(response)
+                when {
+                    !response.isSuccessful && !failSilently -> {
+                        showQueryError(activity, JSONObject(response.body!!.string()).getString("error"))
+                    }
+                    !response.isSuccessful && failSilently -> {
+                        return
+                    }
+                    else -> {
+                        doWithResponse(response)
+                    }
                 }
             }
         }
@@ -37,17 +49,13 @@ fun Activity.queryEngineUsingButton(button: Button, temporaryText: String,
     val request = Request.Builder().url(url).build()
     client.newCall(request).enqueue(object : Callback {
         override fun onFailure(call: Call, e: IOException) {
-            val engineErrorBar = Snackbar.make(findViewById(activity), getString(R.string.engine_down), 3000)
-            engineErrorBar.view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text).maxLines = 5
-            engineErrorBar.show()
+            showQueryError(activity, getString(R.string.engine_down))
             button.text = savedText
         }
         override fun onResponse(call: Call, response: Response) {
             response.use {
                 if (!response.isSuccessful) {
-                    val engineErrorBar = Snackbar.make(findViewById(activity), JSONObject(response.body!!.string()).getString("error"), 3000)
-                    engineErrorBar.view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text).maxLines = 5
-                    engineErrorBar.show()
+                    showQueryError(activity, JSONObject(response.body!!.string()).getString("error"))
                 } else {
                     doWithResponse(response)
                 }

@@ -63,7 +63,8 @@ class MainActivity : AppCompatActivity() {
             if (hasWindowFocus()) {
                 queryEngine(
                     R.id.activity_main,
-                    baseUrl
+                    baseUrl,
+                    failSilently = true
                 ) { response ->
                     val newMessage = response.body!!.string()
                     if (newMessage != message.value.toString()) {
