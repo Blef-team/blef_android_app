@@ -107,8 +107,7 @@ class Game : AppCompatActivity() {
         fun updateGame() {
             queryEngine(
                 R.id.activity_game,
-                baseUrl + if (playerUuid != null)  "/$gameUuid?player_uuid=$playerUuid" else "/$gameUuid",
-                failSilently = true
+                baseUrl + if (playerUuid != null)  "/$gameUuid?player_uuid=$playerUuid" else "/$gameUuid"
             ) { response ->
                 val newMessage = response.body!!.string()
                 if (JsonParser().parse(newMessage) != JsonParser().parse(message.value.toString())) {
@@ -123,8 +122,7 @@ class Game : AppCompatActivity() {
 
                         queryEngine(
                             R.id.activity_game,
-                            baseUrl + if (playerUuid != null)  "/$gameUuid?player_uuid=$playerUuid&round=$currentRound" else "/$gameUuid?round=$currentRound",
-                            failSilently = true
+                            baseUrl + if (playerUuid != null)  "/$gameUuid?player_uuid=$playerUuid&round=$currentRound" else "/$gameUuid?round=$currentRound"
                         ) { response2 ->
                             if (newJson.getString("status") == GameStatuses.FINISHED){
                                 mHandler.post{gameFinished = true} // Upon game finish, only stop regular queries if the second query was successful

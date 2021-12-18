@@ -16,26 +16,19 @@ fun Activity.showQueryError(activity: Int, message: String) {
     engineErrorBar.show()
 }
 
-fun Activity.queryEngine(activity: Int, url: String, failSilently: Boolean = false, doWithResponse: (response: Response) -> Unit) {
+fun Activity.queryEngine(activity: Int, url: String, doWithResponse: (response: Response) -> Unit) {
     val request = Request.Builder().url(url).build()
     client.newCall(request).enqueue(object : Callback {
         override fun onFailure(call: Call, e: IOException) {
-            if (!failSilently) {
-                showQueryError(activity, getString(R.string.engine_down))
-            }
+            showQueryError(activity, getString(R.string.engine_down))
         }
         override fun onResponse(call: Call, response: Response) {
             response.use {
-                when {
-                    !response.isSuccessful && !failSilently -> {
+                if (!response.isSuccessful) {
                         showQueryError(activity, JSONObject(response.body!!.string()).getString("error"))
                     }
-                    !response.isSuccessful && failSilently -> {
-                        return
-                    }
-                    else -> {
-                        doWithResponse(response)
-                    }
+                else {
+                    doWithResponse(response)
                 }
             }
         }
