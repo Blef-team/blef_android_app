@@ -21,7 +21,6 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.MutableLiveData
 import com.google.android.material.button.MaterialButton
-import com.google.android.material.snackbar.Snackbar
 import com.google.gson.JsonParser
 import com.skydoves.powerspinner.*
 import okhttp3.*
@@ -156,8 +155,7 @@ class Game : AppCompatActivity() {
 
         fun updateGameIfEngineHappy(response: Response) {
             if (!response.isSuccessful) {
-                val engineErrorBar = Snackbar.make(findViewById(R.id.activity_game), response.body!!.string(), 3000)
-                engineErrorBar.show()
+                showQueryError(R.id.activity_game, JSONObject(response.body!!.string()).getString("error"))
             } else {
                 updateGame()
             }
@@ -602,9 +600,7 @@ class Game : AppCompatActivity() {
             val rawNickname = typeNickname.text.toString()
             val tryingNickname = rawNickname.replace(" ", "_")
             if(!"^[a-zA-Z]\\w*$".toRegex().matches(tryingNickname)) {
-                val errorBar = Snackbar.make(findViewById(R.id.activity_game), getString(R.string.nickname_id_bad), 5000)
-                errorBar.view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text).maxLines = 5
-                errorBar.show()
+                showQueryError(R.id.activity_game, getString(R.string.nickname_id_bad))
             } else {
                 queryEngine(
                     R.id.activity_game,
