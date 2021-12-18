@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.webkit.WebSettings
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
@@ -242,5 +243,6 @@ class MainActivity : AppCompatActivity() {
                 }
             })
         }
+        Thread{ WebSettings.getDefaultUserAgent(this@MainActivity) }.start()
     }
 }
