@@ -12,11 +12,8 @@ import android.os.Looper
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
-import android.widget.TextView
-import com.google.android.material.snackbar.Snackbar
 import okhttp3.*
 import org.json.JSONObject
-import java.io.IOException
 
 class Creating : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,9 +39,7 @@ class Creating : AppCompatActivity() {
             val tryingNickname = rawNickname.replace(" ", "_")
 
             if(!"^[a-zA-Z]\\w*$".toRegex().matches(tryingNickname)) {
-                val errorBar = Snackbar.make(findViewById(R.id.activity_creating), getString(R.string.nickname_id_bad), 5000)
-                errorBar.view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text).maxLines = 5
-                errorBar.show()
+                showQueryError(R.id.activity_creating, getString(R.string.nickname_id_bad))
             } else {
                 val mHandler = Handler(Looper.getMainLooper())
 

@@ -5,6 +5,12 @@
     <string name="nickname_hint">Pseudonim...</string>
     <string name="create">Utwórz</string>
     <string name="continueGame">Kontynuuj</string>
+    <string name="quick_play">Szybka gra 🤖</string>
+    <string name="default_nickname">Gracz</string>
+    <string name="creating">Tworzę...</string>
+    <string name="joining">Dołączam...</string>
+    <string name="inviting">Zapraszam...</string>
+    <string name="starting">Rozpoczynam...</string>
     <string name="join_via_invite_link">Dołącz do gry</string>
     <string name="no_games">Nie ma publicznych gier.</string>
     <string name="players">Gracze</string>
@@ -17,6 +23,7 @@
     <string name="confirm">Potwierdź</string>
     <string name="start_game">Rozpocznij</string>
     <string name="send_invite">Wyślij zaproszenie</string>
+    <string name="invite_dazhbog">Zaproś Dażboga 🤖</string>
     <string name="join_me_for_a_game_of_blef">Dołącz do gry w Blef</string>
     <string name="join">Dołącz</string>
     <string name="go_to_current_round">Idź do bieżącej rundy</string>

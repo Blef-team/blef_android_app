@@ -21,7 +21,6 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.MutableLiveData
 import com.google.android.material.button.MaterialButton
-import com.google.android.material.snackbar.Snackbar
 import com.google.gson.JsonParser
 import com.skydoves.powerspinner.*
 import okhttp3.*
@@ -107,7 +106,7 @@ class Game : AppCompatActivity() {
         fun updateGame() {
             queryEngine(
                 R.id.activity_game,
-                baseUrl + if (playerUuid != null)  "/$gameUuid?player_uuid=$playerUuid" else "/$gameUuid",
+                baseUrl + if (playerUuid != null)  "/$gameUuid?player_uuid=$playerUuid" else "/$gameUuid"
             ) { response ->
                 val newMessage = response.body!!.string()
                 if (JsonParser().parse(newMessage) != JsonParser().parse(message.value.toString())) {
@@ -117,7 +116,6 @@ class Game : AppCompatActivity() {
                                 newJson.getString("round_number") == JSONObject(message.value.toString()).getString("round_number"))) {
                         mHandler.post{message.setValue(newMessage)}
                     } else {
-                        if (newJson.getString("status") == GameStatuses.FINISHED) mHandler.post{gameFinished = true}
                         // Update only the current round
                         val currentRound = JSONObject(message.value.toString()).getString("round_number")
 
@@ -125,6 +123,9 @@ class Game : AppCompatActivity() {
                             R.id.activity_game,
                             baseUrl + if (playerUuid != null)  "/$gameUuid?player_uuid=$playerUuid&round=$currentRound" else "/$gameUuid?round=$currentRound"
                         ) { response2 ->
+                            if (newJson.getString("status") == GameStatuses.FINISHED){
+                                mHandler.post{gameFinished = true} // Upon game finish, only stop regular queries if the second query was successful
+                            }
                             val newMessage2 = response2.body!!.string()
                             mHandler.post {
                                 updateOnHold = true
@@ -154,8 +155,7 @@ class Game : AppCompatActivity() {
 
         fun updateGameIfEngineHappy(response: Response) {
             if (!response.isSuccessful) {
-                val engineErrorBar = Snackbar.make(findViewById(R.id.activity_game), response.body!!.string(), 3000)
-                engineErrorBar.show()
+                showQueryError(R.id.activity_game, JSONObject(response.body!!.string()).getString("error"))
             } else {
                 updateGame()
             }
@@ -165,7 +165,7 @@ class Game : AppCompatActivity() {
             queryEngine(
                 R.id.activity_game,
                 "$baseUrl/$gameUuid/make-public?admin_uuid=$playerUuid",
-                ::updateGameIfEngineHappy
+                doWithResponse = ::updateGameIfEngineHappy
             )
         }
 
@@ -173,7 +173,7 @@ class Game : AppCompatActivity() {
             queryEngine(
                 R.id.activity_game,
                 "$baseUrl/$gameUuid/make-private?admin_uuid=$playerUuid",
-                ::updateGameIfEngineHappy
+                doWithResponse = ::updateGameIfEngineHappy
             )
         }
 
@@ -181,7 +181,15 @@ class Game : AppCompatActivity() {
             queryEngine(
                 R.id.activity_game,
                 "$baseUrl/$gameUuid/start?admin_uuid=$playerUuid",
-                ::updateGameIfEngineHappy
+                doWithResponse = ::updateGameIfEngineHappy
+            )
+        }
+
+        fun inviteAi(name: String) {
+            queryEngine(
+                R.id.activity_game,
+                "$baseUrl/$gameUuid/invite-aiagent?admin_uuid=$playerUuid&agent_name=$name",
+                doWithResponse = ::updateGameIfEngineHappy
             )
         }
 
@@ -513,6 +521,10 @@ class Game : AppCompatActivity() {
         startButton.layoutParams = singleButtonParams
         startButton.setOnClickListener{start()}
 
+        val adminPerks = LinearLayout(this@Game)
+        adminPerks.orientation = LinearLayout.HORIZONTAL
+        adminPerks.isBaselineAligned = false
+
         val inviteButton = BlefButton(this@Game)
         inviteButton.tag = "inviteButton"
         inviteButton.text = getString(R.string.send_invite)
@@ -526,7 +538,16 @@ class Game : AppCompatActivity() {
         }
 
         val publicPrivateButton = BlefButton(this@Game)
-        publicPrivateButton.layoutParams = singleButtonParams
+        publicPrivateButton.layoutParams = leftButtonParams
+
+        val aiDazhbogButton = BlefButton(this@Game)
+        aiDazhbogButton.tag = "start"
+        aiDazhbogButton.text = getString(R.string.invite_dazhbog)
+        aiDazhbogButton.layoutParams = rightButtonParams
+        aiDazhbogButton.setOnClickListener{inviteAi("Dazhbog")}
+
+        adminPerks.addView(publicPrivateButton)
+        adminPerks.addView(aiDazhbogButton)
 
         fun makeBetChooser(lastActionId: Int): PowerSpinnerView {
             val betChooser = createPowerSpinnerView(this) {
@@ -579,9 +600,7 @@ class Game : AppCompatActivity() {
             val rawNickname = typeNickname.text.toString()
             val tryingNickname = rawNickname.replace(" ", "_")
             if(!"^[a-zA-Z]\\w*$".toRegex().matches(tryingNickname)) {
-                val errorBar = Snackbar.make(findViewById(R.id.activity_game), getString(R.string.nickname_id_bad), 5000)
-                errorBar.view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text).maxLines = 5
-                errorBar.show()
+                showQueryError(R.id.activity_game, getString(R.string.nickname_id_bad))
             } else {
                 queryEngine(
                     R.id.activity_game,
@@ -663,7 +682,7 @@ class Game : AppCompatActivity() {
                         publicPrivateButton.text = getString(R.string.make_private)
                         publicPrivateButton.setOnClickListener{makePrivate()}
                     }
-                    ll.addView(publicPrivateButton)
+                    ll.addView(adminPerks)
                     ll.addView(inviteButton)
                 }
                 gameObject.getString("status") == GameStatuses.NOT_STARTED && nickname != null -> {
