@@ -179,16 +179,23 @@ class MainActivity : AppCompatActivity() {
                     ) {
                         queryEngineUsingButton(
                             quickPlayButton,
-                            getString(R.string.starting),
+                            getString(R.string.inviting),
                             R.id.activity_main,
-                            "$baseUrl/$gameUuid/start?admin_uuid=$playerUuid"
+                            "$baseUrl/$gameUuid/invite-aiagent?admin_uuid=$playerUuid&agent_name=Dazhbog"
                         ) {
-                            this@MainActivity.getSharedPreferences("app.blef.blef.PLAYER_UUID", Context.MODE_PRIVATE)
-                                .edit().putString(gameUuid, playerUuid).apply()
-                            this@MainActivity.getSharedPreferences("app.blef.blef.NICKNAME", Context.MODE_PRIVATE)
-                                .edit().putString(gameUuid, nickname).apply()
-                            val intent = Intent(this@MainActivity, Game::class.java).putExtra("game_uuid", gameUuid)
-                            mHandler.post{startActivity(intent)}
+                            queryEngineUsingButton(
+                                quickPlayButton,
+                                getString(R.string.starting),
+                                R.id.activity_main,
+                                "$baseUrl/$gameUuid/start?admin_uuid=$playerUuid"
+                            ) {
+                                this@MainActivity.getSharedPreferences("app.blef.blef.PLAYER_UUID", Context.MODE_PRIVATE)
+                                    .edit().putString(gameUuid, playerUuid).apply()
+                                this@MainActivity.getSharedPreferences("app.blef.blef.NICKNAME", Context.MODE_PRIVATE)
+                                    .edit().putString(gameUuid, nickname).apply()
+                                val intent = Intent(this@MainActivity, Game::class.java).putExtra("game_uuid", gameUuid)
+                                mHandler.post{startActivity(intent)}
+                            }
                         }
                     }
                 }
