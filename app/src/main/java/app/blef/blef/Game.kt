@@ -128,8 +128,10 @@ class Game : AppCompatActivity() {
                             }
                             val newMessage2 = response2.body!!.string()
                             mHandler.post {
-                                updateOnHold = true
-                                message.setValue(newMessage2)
+                                if (!updateOnHold) {
+                                    updateOnHold = true
+                                    message.setValue(newMessage2)
+                                }
                             }
                         }
                     }
