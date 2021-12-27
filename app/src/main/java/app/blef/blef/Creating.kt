@@ -5,7 +5,6 @@ package app.blef.blef
 
 import android.content.Context
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -15,7 +14,7 @@ import android.widget.EditText
 import okhttp3.*
 import org.json.JSONObject
 
-class Creating : AppCompatActivity() {
+class Creating : BlefActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         resources.displayMetrics.density = (resources.displayMetrics.widthPixels / 360).toFloat()
         super.onCreate(savedInstanceState)

@@ -18,7 +18,6 @@ import android.view.ViewGroup
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.*
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.MutableLiveData
 import com.google.android.material.button.MaterialButton
 import com.google.gson.JsonParser
@@ -30,7 +29,7 @@ import java.io.IOException
 import java.util.stream.Collectors
 import kotlin.concurrent.fixedRateTimer
 
-class Game : AppCompatActivity() {
+class Game : BlefActivity() {
     class Card(val value: Int, val suit: Int)
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -6,7 +6,6 @@ package app.blef.blef
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -22,7 +21,7 @@ import org.json.JSONObject
 import java.io.IOException
 import kotlin.concurrent.fixedRateTimer
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : BlefActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         resources.displayMetrics.density = (resources.displayMetrics.widthPixels / 360).toFloat()
         super.onCreate(savedInstanceState)
