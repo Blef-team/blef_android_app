@@ -127,4 +127,13 @@
     <string name="engine_down">Can\'t connect to the game engine</string>
     <string name="game_unavailable">This game is not available</string>
     <string name="something_went_wrong">Something went wrong</string>
+    <string name="game_rules_html">
+        &lt;b&gt;Rules of the game&lt;/b&gt;
+        &lt;br&gt;&lt;br&gt;Each player gets some cards, between 9 and A.
+        &lt;br&gt;&lt;br&gt;The first player makes a bet. If they say \"Pair of Ks\", they\'re claiming that all players together have at least 2 kings.
+        &lt;br&gt;&lt;br&gt;The next player can bet something higher (e.g. \"Pair of As\") or check.
+        &lt;br&gt;&lt;br&gt;When somebody finally checks, everyone reveals their cards. If the last bet was correct, the checking person loses. Otherwise, the checked person loses.
+        &lt;br&gt;&lt;br&gt;Cards are shuffled. The player who lost gets one more card and starts this time.
+        &lt;br&gt;&lt;br&gt;When you lose too many times, you\'re out of the game. Last player remaining wins.
+    </string>
 </resources>

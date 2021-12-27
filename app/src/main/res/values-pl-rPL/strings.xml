@@ -128,4 +128,13 @@
     <string name="engine_down">Nie udało się połączyć z silnikiem gry</string>
     <string name="game_unavailable">Ta gra jest niedostępna</string>
     <string name="something_went_wrong">Wystąpił błąd</string>
+    <string name="game_rules_html">
+        &lt;b&gt;Zasady gry&lt;/b&gt;
+        &lt;br&gt;&lt;br&gt;Każdy gracz dostaje kilka kart, między 9 a A.
+        &lt;br&gt;&lt;br&gt;Pierwszy gracz zgłasza układ. Jeśli zgłosi \"Para K\", to twierdzi, że wszyscy gracze razem mają co najmniej 2 króle.
+        &lt;br&gt;&lt;br&gt;Następny gracz zgłasza coś wyższego (np. \"Para A\") albo sprawdza.
+        &lt;br&gt;&lt;br&gt;Kiedy ktoś w końcu sprawdzi, wszyscy pokazują karty. Jeśli ostatnie zgłoszenie bylo poprawne, sprawdzający przegrywa. Jeśli nie, sprawdzany przegrywa.
+        &lt;br&gt;&lt;br&gt;Karty są tasowane. Gracz, który przegrał, dostaje o jedną kartę więcej i teraz zaczyna.
+        &lt;br&gt;&lt;br&gt;Jak przegrasz za dużo razy, odpadasz z gry. Ostatni gracz w grze wygrywa.
+    </string>
 </resources>
