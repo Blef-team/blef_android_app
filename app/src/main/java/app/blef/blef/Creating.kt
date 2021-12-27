@@ -16,7 +16,6 @@ import org.json.JSONObject
 
 class Creating : BlefActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        resources.displayMetrics.density = (resources.displayMetrics.widthPixels / 360).toFloat()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_creating)
 
