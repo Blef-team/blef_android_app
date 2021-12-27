@@ -1,8 +1,13 @@
 package app.blef.blef
 
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.Button
+import android.widget.ScrollView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.text.HtmlCompat
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import okhttp3.*
 import org.json.JSONObject
@@ -71,5 +76,30 @@ open class BlefActivity : AppCompatActivity() {
                 }
             }
         })
+    }
+
+    private fun showRules() {
+        val container = ScrollView(this)
+        container.scrollBarFadeDuration = 0
+        container.addView(TextView(this).apply {
+            text = HtmlCompat.fromHtml(getString(R.string.game_rules_html), HtmlCompat.FROM_HTML_MODE_LEGACY)
+            setPadding(20, 20, 20, 20)
+        })
+        MaterialAlertDialogBuilder(this)
+            .setView(container)
+            .setNegativeButton("OK") { dialog, _ -> dialog.dismiss() }
+            .show()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.menu, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.rules_button) {
+            showRules()
+        }
+        return super.onOptionsItemSelected(item)
     }
 }
