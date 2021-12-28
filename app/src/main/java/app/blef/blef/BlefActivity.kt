@@ -83,7 +83,7 @@ open class BlefActivity : AppCompatActivity() {
         container.scrollBarFadeDuration = 0
         container.addView(TextView(this).apply {
             text = HtmlCompat.fromHtml(getString(R.string.game_rules_html), HtmlCompat.FROM_HTML_MODE_LEGACY)
-            setPadding(20, 20, 20, 20)
+            setPadding(30, 30, 30, 30)
         })
         MaterialAlertDialogBuilder(this)
             .setView(container)
