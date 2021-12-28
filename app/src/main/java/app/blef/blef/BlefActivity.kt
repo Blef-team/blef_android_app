@@ -93,6 +93,10 @@ open class BlefActivity : AppCompatActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu, menu)
+        menu.findItem(R.id.rules_button).title = HtmlCompat.fromHtml(
+            "<big><big>?</big></big>",
+            HtmlCompat.FROM_HTML_MODE_LEGACY
+        )
         return super.onCreateOptionsMenu(menu)
     }
 

@@ -5,7 +5,7 @@
     android:layout_height="match_parent">
     <item
         android:id="@+id/rules_button"
-        android:title="❔"
+        android:title="\?"
         app:showAsAction="always"
         />
 </menu>
