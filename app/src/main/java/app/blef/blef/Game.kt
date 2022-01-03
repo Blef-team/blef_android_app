@@ -111,7 +111,8 @@ class Game : BlefActivity() {
                     val newJson = JSONObject(newMessage)
                     if (newJson.getString("round_number").toInt() <= 1 || // hard update if game not started or in first round
                         (newJson.getString("status") == GameStatuses.RUNNING && // hard update if game has not progressed to another round and has not finished
-                                newJson.getString("round_number") == JSONObject(message.value.toString()).getString("round_number"))) {
+                                newJson.getString("round_number") == JSONObject(message.value.toString()).getString("round_number") &&
+                                !updateOnHold)) {
                         mHandler.post{message.setValue(newMessage)}
                     } else {
                         // Update only the current round
@@ -230,12 +231,6 @@ class Game : BlefActivity() {
         }
         fun addCardTableStyle(s: String): String {
             return("<style>".plus(assets.open("card_table_style.css").bufferedReader().lines().collect(Collectors.joining())).plus("</style>").plus(s))
-        }
-        fun formatNickname(raw: String, own: String?, active: Boolean = true): String {
-            var formatted = if (raw == own) "<b>$raw</b>" else raw
-            formatted = formatted.replace("_", " ")
-            if (!active) formatted = "<s>$formatted</s>"
-            return(formatted)
         }
 
         val gi = findViewById<LinearLayout>(R.id.gameInfo)
