@@ -78,6 +78,13 @@ open class BlefActivity : AppCompatActivity() {
         })
     }
 
+    fun formatNickname(raw: String, own: String?, active: Boolean = true): String {
+        var formatted = if (raw == own) "<b>$raw</b>" else raw
+        formatted = formatted.replace("_", " ")
+        if (!active) formatted = "<s>$formatted</s>"
+        return(formatted)
+    }
+
     private fun showRules() {
         val container = ScrollView(this)
         container.scrollBarFadeDuration = 0

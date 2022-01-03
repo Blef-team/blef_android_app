@@ -120,7 +120,8 @@ class MainActivity : BlefActivity() {
                     val playersArray = JSONObject(filteredPublicGames.get(i).toString()).getJSONArray("players")
                     val playersList = ArrayList<String>()
                     for (j in 0 until playersArray.length()){
-                        playersList.add(playersArray.getString(j))
+                        val formattedNickname = formatNickname(playersArray.getString(j), null)
+                        playersList.add(formattedNickname)
                     }
                     val playersText = playersList.joinToString(separator = ", ")
 
