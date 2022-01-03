@@ -232,12 +232,6 @@ class Game : BlefActivity() {
         fun addCardTableStyle(s: String): String {
             return("<style>".plus(assets.open("card_table_style.css").bufferedReader().lines().collect(Collectors.joining())).plus("</style>").plus(s))
         }
-        fun formatNickname(raw: String, own: String?, active: Boolean = true): String {
-            var formatted = if (raw == own) "<b>$raw</b>" else raw
-            formatted = formatted.replace("_", " ")
-            if (!active) formatted = "<s>$formatted</s>"
-            return(formatted)
-        }
 
         val gi = findViewById<LinearLayout>(R.id.gameInfo)
         val generalInfo = WebView(this@Game)
