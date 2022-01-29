@@ -536,7 +536,7 @@ class Game : BlefActivity() {
         publicPrivateButton.layoutParams = leftButtonParams
 
         val aiDazhbogButton = BlefButton(this@Game)
-        aiDazhbogButton.tag = "start"
+        aiDazhbogButton.tag = "aiDazbhogButton"
         aiDazhbogButton.text = getString(R.string.invite_dazhbog)
         aiDazhbogButton.layoutParams = rightButtonParams
         aiDazhbogButton.setOnClickListener{inviteAi("Dazhbog")}
