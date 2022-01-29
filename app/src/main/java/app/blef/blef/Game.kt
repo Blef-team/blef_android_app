@@ -516,10 +516,6 @@ class Game : BlefActivity() {
         startButton.layoutParams = singleButtonParams
         startButton.setOnClickListener{start()}
 
-        val adminPerks = LinearLayout(this@Game)
-        adminPerks.orientation = LinearLayout.HORIZONTAL
-        adminPerks.isBaselineAligned = false
-
         val inviteButton = BlefButton(this@Game)
         inviteButton.tag = "inviteButton"
         inviteButton.text = getString(R.string.send_invite)
@@ -532,17 +528,44 @@ class Game : BlefActivity() {
             startActivity(Intent.createChooser(intent, getString(R.string.share_via)))
         }
 
-        val publicPrivateButton = BlefButton(this@Game)
-        publicPrivateButton.layoutParams = leftButtonParams
-
         val aiDazhbogButton = BlefButton(this@Game)
         aiDazhbogButton.tag = "aiDazbhogButton"
         aiDazhbogButton.text = getString(R.string.invite_dazhbog)
-        aiDazhbogButton.layoutParams = rightButtonParams
+        aiDazhbogButton.layoutParams = leftButtonParams
         aiDazhbogButton.setOnClickListener{inviteAi("Dazhbog")}
 
-        adminPerks.addView(publicPrivateButton)
-        adminPerks.addView(aiDazhbogButton)
+        val aiPorevitButton = BlefButton(this@Game)
+        aiPorevitButton.tag = "aiPorevitButton"
+        aiPorevitButton.text = getString(R.string.invite_porevit)
+        aiPorevitButton.layoutParams = rightButtonParams
+        aiPorevitButton.setOnClickListener{inviteAi("Porevit")}
+
+        val adminButtonRow1 = LinearLayout(this@Game)
+        adminButtonRow1.orientation = LinearLayout.HORIZONTAL
+        adminButtonRow1.isBaselineAligned = false
+        adminButtonRow1.addView(aiDazhbogButton)
+        adminButtonRow1.addView(aiPorevitButton)
+
+        val publicPrivateButton = BlefButton(this@Game)
+        publicPrivateButton.layoutParams = leftButtonParams
+
+        val adminInviteButton = BlefButton(this@Game)
+        adminInviteButton.tag = "adminInviteButton"
+        adminInviteButton.text = getString(R.string.send_invite)
+        adminInviteButton.layoutParams = rightButtonParams
+        adminInviteButton.setOnClickListener{
+            val link = "${getString(R.string.join_me_for_a_game_of_blef)}: https://www.blef.app/join.html?game_uuid=$gameUuid"
+            val intent = Intent(Intent.ACTION_SEND)
+            intent.type = "text/plain"
+            intent.putExtra(Intent.EXTRA_TEXT, link)
+            startActivity(Intent.createChooser(intent, getString(R.string.share_via)))
+        }
+
+        val adminButtonRow2 = LinearLayout(this@Game)
+        adminButtonRow2.orientation = LinearLayout.HORIZONTAL
+        adminButtonRow2.isBaselineAligned = false
+        adminButtonRow2.addView(publicPrivateButton)
+        adminButtonRow2.addView(adminInviteButton)
 
         fun makeBetChooser(lastActionId: Int): PowerSpinnerView {
             val betChooser = createPowerSpinnerView(this) {
@@ -677,8 +700,8 @@ class Game : BlefActivity() {
                         publicPrivateButton.text = getString(R.string.make_private)
                         publicPrivateButton.setOnClickListener{makePrivate()}
                     }
-                    ll.addView(adminPerks)
-                    ll.addView(inviteButton)
+                    ll.addView(adminButtonRow1)
+                    ll.addView(adminButtonRow2)
                 }
                 gameObject.getString("status") == GameStatuses.NOT_STARTED && nickname != null -> {
                     ll.addView(inviteButton)
