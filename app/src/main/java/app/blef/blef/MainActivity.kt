@@ -180,7 +180,7 @@ class MainActivity : BlefActivity() {
                             quickPlayButton,
                             getString(R.string.inviting),
                             R.id.activity_main,
-                            "$baseUrl/$gameUuid/invite-aiagent?admin_uuid=$playerUuid&agent_name=Dazhbog"
+                            "$baseUrl/$gameUuid/invite-aiagent?admin_uuid=$playerUuid&agent_name=Porevit"
                         ) {
                             queryEngineUsingButton(
                                 quickPlayButton,
