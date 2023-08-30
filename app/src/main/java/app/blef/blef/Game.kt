@@ -232,6 +232,9 @@ class Game : BlefActivity() {
         fun addCardTableStyle(s: String): String {
             return("<style>".plus(assets.open("card_table_style.css").bufferedReader().lines().collect(Collectors.joining())).plus("</style>").plus(s))
         }
+        fun addPulse(s: String): String {
+            return("<style>".plus(assets.open("pulse.css").bufferedReader().lines().collect(Collectors.joining())).plus("</style>").plus("<p class=\"pulsate\">$s</p>"))
+        }
 
         val gi = findViewById<LinearLayout>(R.id.gameInfo)
         val generalInfo = WebView(this@Game)
@@ -408,7 +411,7 @@ class Game : BlefActivity() {
                 val cp = gameObject.getString("cp_nickname")
                 historyInfoData = historyInfoData.plus(makeRow(
                     makeLeftCell(formatNickname(cp, nickname)),
-                    makeRightCell("...")
+                    makeRightCell(addPulse("..."))
                 ))
                 loserInfo.loadDataWithBaseURL("file:///android_asset/", "", "text/html", "UTF-8", null)
             }
@@ -532,7 +535,7 @@ class Game : BlefActivity() {
         aiDazhbogButton.tag = "aiDazbhogButton"
         aiDazhbogButton.text = getString(R.string.invite_dazhbog)
         aiDazhbogButton.layoutParams = leftButtonParams
-        aiDazhbogButton.setOnClickListener{inviteAi("Dazhbog")}
+        aiDazhbogButton.setOnClickListener{inviteAi("Nashbog")}
 
         val aiPorevitButton = BlefButton(this@Game)
         aiPorevitButton.tag = "aiPorevitButton"
