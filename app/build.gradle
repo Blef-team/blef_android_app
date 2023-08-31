@@ -15,8 +15,8 @@ android {
         applicationId "app.blef.blef"
         minSdkVersion 24
         targetSdkVersion 33
-        versionCode 18
-        versionName "1.8.3"
+        versionCode 19
+        versionName "1.8.4"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         signingConfig signingConfigs.release
     }
