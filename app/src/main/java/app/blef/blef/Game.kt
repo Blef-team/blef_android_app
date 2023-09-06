@@ -535,7 +535,7 @@ class Game : BlefActivity() {
         aiDazhbogButton.tag = "aiDazbhogButton"
         aiDazhbogButton.text = getString(R.string.invite_dazhbog)
         aiDazhbogButton.layoutParams = leftButtonParams
-        aiDazhbogButton.setOnClickListener{inviteAi("Nashbog")}
+        aiDazhbogButton.setOnClickListener{inviteAi("Dazhbog")}
 
         val aiPorevitButton = BlefButton(this@Game)
         aiPorevitButton.tag = "aiPorevitButton"
